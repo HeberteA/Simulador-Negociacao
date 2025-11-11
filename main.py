@@ -8,6 +8,7 @@ import time
 
 st.set_page_config(
     page_title="Simulador de Negociação",
+    page_icon="Lavie1.png",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -206,7 +207,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
 try:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("LavieC.png", width=400)
+        st.image("Lavie.png", width=400)
 except FileNotFoundError:
     st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
@@ -413,11 +414,19 @@ with tab2:
                     
                     with tab_resumo:
                         detail_cols = st.columns(2)
-                        detail_cols[0].metric(f"Mensais ({num_mensal_num}x)", format_currency(val_mensal_num))
+                        detail_cols[0].metric(
+                            label="Valor Mensal", 
+                            value=format_currency(val_mensal_num), 
+                            delta=f"{num_mensal_num}x"
+                        )
                         detail_cols[1].metric("Total em Mensais", format_currency(total_mensal))
                         
                         detail_cols2 = st.columns(2)
-                        detail_cols2[0].metric(f"Semestrais ({num_semestral_num}x)", format_currency(val_semestral_num))
+                        detail_cols2[0].metric(
+                            label="Valor Semestral", 
+                            value=format_currency(val_semestral_num), 
+                            delta=f"{num_semestral_num}x"
+                        )
                         detail_cols2[1].metric("Total em Semestrais", format_currency(total_semestral))
                         
                         st.metric("Entrega", format_currency(val_entrega_num))
