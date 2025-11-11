@@ -62,7 +62,7 @@ st.title("Simulador de Negociação Imobiliária")
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
 
 with tab1:
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🏗️ 1. Selecione a Obra</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">1. Selecione a Obra</h3>', unsafe_allow_html=True)
     
     lista_obras = [
         "Burj Lavie",
