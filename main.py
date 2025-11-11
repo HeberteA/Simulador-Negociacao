@@ -53,7 +53,7 @@ def format_currency(value):
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     try:
-        st.image("LavieC.png", width=400)
+        st.image("Lavie.png", width=400)
     except Exception as e:
         st.error(f"Não foi possível carregar a imagem 'LavieC.png'. Verifique se o arquivo está no lugar certo. Erro: {e}")
 
