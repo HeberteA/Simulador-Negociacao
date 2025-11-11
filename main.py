@@ -71,33 +71,39 @@ with tab1:
     ]
     st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed")
 
-    st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🔢 2. Dados da Simulação</h3>', unsafe_allow_html=True)
-    st.text_input("Número da Sala / Unidade", key="sala")
-    preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f")
+    # st.divider() # Removido para economizar espaço
+    
+    col_inputs1, col_inputs2 = st.columns(2)
 
-    st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📊 3. Definição do Fluxo de Pagamento (%)</h3>', unsafe_allow_html=True)
+    with col_inputs1:
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🔢 2. Dados da Simulação</h3>', unsafe_allow_html=True)
+        st.text_input("Número da Sala / Unidade", key="sala")
+        preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f")
 
-    perc_entrada = st.slider("Entrada (%)", 0, 100, 20)
-    perc_mensal = st.slider("Parcelas Mensais (%)", 0, 100, 30)
-    perc_semestral = st.slider("Parcelas Semestrais (%)", 0, 100, 20)
-    perc_entrega = st.slider("Entrega (%)", 0, 100, 30)
-
-    total_perc = perc_entrada + perc_mensal + perc_semestral + perc_entrega
-    if total_perc != 100:
-        st.warning(f"A soma dos percentuais é {total_perc}%. O ideal é que a soma seja 100%.")
-    else:
-        st.success("A soma dos percentuais é 100%.")
-
-    st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗓️ 4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
+        st.divider()
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗓️ 4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
         num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=1, value=36, step=1)
-    with col2:
         num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=1, value=6, step=1)
+
+    with col_inputs2:
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📊 3. Definição do Fluxo (%)</h3>', unsafe_allow_html=True) # Título encurtado
+        perc_entrada = st.slider("Entrada (%)", 0, 100, 20)
+        perc_mensal = st.slider("Parcelas Mensais (%)", 0, 100, 30)
+        perc_semestral = st.slider("Parcelas Semestrais (%)", 0, 100, 20)
+        perc_entrega = st.slider("Entrega (%)", 0, 100, 30)
+        
+        st.divider()
+        total_perc = perc_entrada + perc_mensal + perc_semestral + perc_entrega
+        if total_perc != 100:
+            st.warning(f"Soma: {total_perc}%. (Ideal: 100%)") # Texto mais curto
+        else:
+            st.success("Soma: 100%.") # Texto mais curto
+
+    # st.divider() # Removido para economizar espaço
+    # Removida a seção 4 daqui, pois foi para col_inputs1
+    # Removida a seção 3 daqui, pois foi para col_inputs2
+
+    st.divider() # Este divider separa os INPUTS dos OUTPUTS
 
     if preco_total > 0:
         valor_total_entrada = preco_total * (perc_entrada / 100)
