@@ -71,23 +71,23 @@ with tab1:
         "Lavie Camboinha",
         "Arc Space"
     ]
-    st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed")
+    st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed", type="primary")
 
     
     col_inputs1, col_inputs2 = st.columns(2)
 
     with col_inputs1:
         st.markdown(f'<h3 style="color: {COR_PRIMARIA};">2. Dados da Simulação</h3>', unsafe_allow_html=True)
-        st.text_input("Número da Sala / Unidade", key="sala")
-        preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f")
+        st.text_input("Número da Sala / Unidade", key="sala", type="primary")
+        preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f", type="primary")
 
         st.divider()
         st.markdown(f'<h3 style="color: {COR_PRIMARIA};">4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
-        num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=1, value=36, step=1)
-        num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=1, value=6, step=1)
+        num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=1, value=36, step=1, type="primary")
+        num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=1, value=6, step=1, type="primary")
 
     with col_inputs2:
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">3. Definição do Fluxo (%)</h3>', unsafe_allow_html=True) # Título encurtado
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">3. Definição do Fluxo (%)</h3>', unsafe_allow_html=True)  
         perc_entrada = st.slider("Entrada (%)", 0, 100, 20)
         perc_mensal = st.slider("Parcelas Mensais (%)", 0, 100, 30)
         perc_semestral = st.slider("Parcelas Semestrais (%)", 0, 100, 20)
@@ -125,7 +125,6 @@ with tab1:
         st.info("Insira um Preço da Sala para iniciar a simulação.")
         valor_total_entrada = valor_parcela_mensal = valor_parcela_semestral = valor_total_entrega = 0.0
 
-    st.divider()
     
     if 'resumo_gerado' not in st.session_state:
         st.session_state.resumo_gerado = ""
@@ -133,7 +132,7 @@ with tab1:
     col_btn1, col_btn2 = st.columns(2)
 
     with col_btn1:
-        if st.button("Gerar Resumo", use_container_width=True):
+        if st.button("Gerar Resumo", use_container_width=True, type="primary"):
             if preco_total > 0:
                 resumo = f"""
 --- RESUMO DA SIMULAÇÃO ---
