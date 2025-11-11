@@ -8,6 +8,7 @@ import time
 
 st.set_page_config(
     page_title="Simulador de Negociação",
+    page_icon="Lavie1.png",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -38,6 +39,12 @@ def get_worksheet():
         return None
     except gspread.exceptions.WorksheetNotFound:
         st.error(f"Erro: Aba '{worksheet_name}' não encontrada. Verifique o 'worksheet_name' nos seus Segredos.")
+        return None
+    except KeyError as e:
+        if "spreadsheet_info" in str(e):
+             st.error("Erro de Segredo: A seção '[spreadsheet_info]' está faltando no seu secrets.toml. Verifique o modelo.")
+        else:
+             st.error(f"Erro de Segredo: Chave não encontrada: {e}. Verifique seu secrets.toml.")
         return None
     except Exception as e:
         st.error(f"Erro ao autenticar ou abrir a planilha: {e}")
@@ -72,7 +79,6 @@ def carregar_dados_planilha():
     except Exception as e:
         st.error(f"Erro ao carregar dados da planilha: {e}")
         return pd.DataFrame()
-
 
 
 @st.dialog("Editar Simulação")
@@ -186,7 +192,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
                 for k in keys_to_delete:
                     del st.session_state[k]
                 
-                return True 
+                return True
             except Exception as e:
                 st.error(f"Erro ao salvar: {e}")
                 return False
@@ -195,7 +201,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         keys_to_delete = [k for k in st.session_state if k.startswith('edit_')]
         for k in keys_to_delete:
             del st.session_state[k]
-        return True 
+        return True
 
 
 try:
@@ -229,6 +235,11 @@ obra_selecionada = st.selectbox(
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
 
 with tab1:
+    if "summary_text" not in st.session_state:
+        st.session_state.summary_text = ""
+    if "data_to_save" not in st.session_state:
+        st.session_state.data_to_save = None
+
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Nova Simulação: {obra_selecionada}</span>", unsafe_allow_html=True)
     
     form_cols = st.columns(2)
@@ -290,36 +301,73 @@ with tab1:
 
     st.markdown("---")
     
-    if st.button("Gerar Resumo e Salvar", type="primary", use_container_width=True, key="btn_salvar_novo"):
+    if st.button("Gerar Resumo", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         if not unidade:
             st.error("Por favor, preencha o nome da Unidade.")
+            st.session_state.summary_text = ""
+            st.session_state.data_to_save = None
         elif preco_total <= 0:
             st.error("Por favor, preencha o Preço Total.")
+            st.session_state.summary_text = ""
+            st.session_state.data_to_save = None
         elif round(total_percent, 1) != 100.0:
             st.error(f"O percentual total deve ser 100% para salvar (Atual: {total_percent:.1f}%).")
+            st.session_state.summary_text = ""
+            st.session_state.data_to_save = None
         else:
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            summary = f"""
+Resumo da Simulação
+----------------------------------
+Obra:     {obra_selecionada}
+Unidade:  {unidade}
+Data:     {data_hora_atual}
+----------------------------------
+Preço Total:   {format_currency(preco_total)}
+
+Entrada:       {perc_entrada:.1f}%  | {format_currency(val_entrada)}
+Mensais:       {perc_mensal:.1f}%  | {num_mensal}x de {format_currency(val_por_mensal)} (Total: {format_currency(val_total_mensal)})
+Semestrais:    {perc_semestral:.1f}%  | {num_semestral}x de {format_currency(val_por_semestral)} (Total: {format_currency(val_total_semestral)})
+Entrega:       {perc_entrega:.1f}%  | {format_currency(val_entrega)}
+----------------------------------
+Total:         {total_percent:.1f}% | {format_currency(preco_total)}
+"""
+            st.session_state.summary_text = summary
+            
+            st.session_state.data_to_save = [
+                obra_selecionada, unidade, preco_total,
+                perc_entrada, val_entrada,
+                perc_mensal, num_mensal, val_por_mensal,
+                perc_semestral, num_semestral, val_por_semestral,
+                perc_entrega, val_entrega,
+                data_hora_atual
+            ]
+
+    if st.session_state.summary_text:
+        st.markdown("##### Resumo Gerado")
+        st.text_area("Resumo para Copiar:", value=st.session_state.summary_text, height=300, key="summary_display", disabled=True)
+        
+        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Conectando ao Google Sheets e salvando..."):
                 try:
                     sheet = get_worksheet()
-                    if sheet:
-                        data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        
-                        nova_linha = [
-                            obra_selecionada, unidade, preco_total,
-                            perc_entrada, val_entrada,
-                            perc_mensal, num_mensal, val_por_mensal,
-                            perc_semestral, num_semestral, val_por_semestral,
-                            perc_entrega, val_entrega,
-                            data_hora
-                        ]
+                    if sheet and st.session_state.data_to_save:
+                        nova_linha = st.session_state.data_to_save
+                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
                         
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
                         st.success("Simulação salva com sucesso na planilha!")
                         st.balloons()
+                        
+                        st.session_state.summary_text = ""
+                        st.session_state.data_to_save = None
+                        
                         st.cache_data.clear() 
                         st.cache_resource.clear()
                         time.sleep(1)
                         st.rerun()
+                    elif not st.session_state.data_to_save:
+                         st.error("Erro: Dados do resumo perdidos. Tente gerar novamente.")
                     else:
                         st.error("Falha ao salvar: Não foi possível conectar à planilha.")
                 except Exception as e:
@@ -415,6 +463,7 @@ with tab2:
                                 st.error("Não foi possível editar: conexão com planilha perdida.")
 
                         st.markdown("---") 
+
                         delete_key = f"delete_{index}_{row['Unidade']}"
                         if st.button("Excluir", key=delete_key, type="primary"):
                             if sheet:
