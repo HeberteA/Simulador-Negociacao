@@ -1,54 +1,44 @@
 import streamlit as st
-import pandas as pd
 import gspread
+import pandas as pd
 from google.oauth2.service_account import Credentials
-import locale
+from datetime import datetime
+import json
 
 st.set_page_config(
     page_title="Simulador de Negociação",
     page_icon="Lavie1.png",
-    layout="centered"
+    layout="centered" 
 )
 
-COR_PRIMARIA = "#E37026"
+COR_PRIMARIA = "#E37026" 
 
-@st.cache_resource
-def connect_to_gsheets():
+def get_gspread_client():
     try:
-        creds_dict = st.secrets["gcp_service_account"]
-        scopes = [
-            "https.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive"
-        ]
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+        creds_json = dict(st.secrets.gcp_service_account)
+        creds = Credentials.from_service_account_info(creds_json)
         client = gspread.authorize(creds)
-        spreadsheet_key = st.secrets["spreadsheet_key"]
-        spreadsheet = client.open_by_key(spreadsheet_key)
-        worksheet_name = st.secrets["worksheet_name"]
-        worksheet = spreadsheet.worksheet(worksheet_name)
-        return worksheet
+        return client
     except Exception as e:
-        st.error(f"Erro ao conectar com o Google Sheets: {e}")
-        st.info("Verifique se as credenciais 'gcp_service_account', 'spreadsheet_key' e 'worksheet_name' estão configuradas corretamente nos Segredos (Secrets) do Streamlit.")
+        st.error(f"Erro ao conectar com o Google Sheets (Autenticação): {e}")
         return None
 
-@st.cache_data(ttl=60)
-def load_data_from_gsheets(_worksheet):
-    if _worksheet:
-        try:
-            data = _worksheet.get_all_records()
-            df = pd.DataFrame(data)
-            return df
-        except Exception as e:
-            st.error(f"Erro ao carregar dados da planilha: {e}")
-    return pd.DataFrame()
-
-def format_currency(value):
+def get_worksheet(client):
     try:
-        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-        return locale.currency(value, grouping=True, symbol=True)
-    except:
-        return f"R$ {value:,.2f}"
+        spreadsheet_key = st.secrets.spreadsheet_key
+        worksheet_name = st.secrets.worksheet_name
+        sheet = client.open_by_key(spreadsheet_key).worksheet(worksheet_name)
+        return sheet
+    except gspread.exceptions.SpreadsheetNotFound:
+        st.error("Erro: Planilha (Spreadsheet) não encontrada. Verifique a 'spreadsheet_key'.")
+        return None
+    except gspread.exceptions.WorksheetNotFound:
+        st.error(f"Erro: Aba (Worksheet) '{worksheet_name}' não encontrada. Verifique 'worksheet_name'.")
+        return None
+    except Exception as e:
+        st.error(f"Erro ao abrir a planilha: {e}")
+        return None
+
 
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
