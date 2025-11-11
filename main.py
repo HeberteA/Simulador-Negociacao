@@ -6,11 +6,10 @@ import locale
 
 st.set_page_config(
     page_title="Simulador de Negociação",
-    page_icon="📈",
-    layout="centered" # layout="centered" já é o modo "sem sidebar"
+    page_icon="Lavie1.png",
+    layout="centered"
 )
 
-# Cor primária da sua marca para usar em elementos customizados
 COR_PRIMARIA = "#E37026"
 
 @st.cache_resource
@@ -51,16 +50,13 @@ def format_currency(value):
     except:
         return f"R$ {value:,.2f}"
 
-# --- LAYOUT PRINCIPAL ---
-
-# Adicione a URL do seu logo aqui para branding, se desejar
-# st.image("URL_DO_SEU_LOGO_AQUI", width=250) 
+st.image("LavieC.png", width=250) 
 st.title("Simulador de Negociação Imobiliária")
 
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
 
 with tab1:
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🏗️ 1. Selecione a Obra</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">1. Selecione a Obra</h3>', unsafe_allow_html=True)
     
     lista_obras = [
         "Burj Lavie",
@@ -71,22 +67,21 @@ with tab1:
     ]
     st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed")
 
-    # st.divider() # Removido para economizar espaço
     
     col_inputs1, col_inputs2 = st.columns(2)
 
     with col_inputs1:
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🔢 2. Dados da Simulação</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">2. Dados da Simulação</h3>', unsafe_allow_html=True)
         st.text_input("Número da Sala / Unidade", key="sala")
         preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f")
 
         st.divider()
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗓️ 4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
         num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=1, value=36, step=1)
         num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=1, value=6, step=1)
 
     with col_inputs2:
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📊 3. Definição do Fluxo (%)</h3>', unsafe_allow_html=True) # Título encurtado
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">3. Definição do Fluxo (%)</h3>', unsafe_allow_html=True) # Título encurtado
         perc_entrada = st.slider("Entrada (%)", 0, 100, 20)
         perc_mensal = st.slider("Parcelas Mensais (%)", 0, 100, 30)
         perc_semestral = st.slider("Parcelas Semestrais (%)", 0, 100, 20)
@@ -95,15 +90,11 @@ with tab1:
         st.divider()
         total_perc = perc_entrada + perc_mensal + perc_semestral + perc_entrega
         if total_perc != 100:
-            st.warning(f"Soma: {total_perc}%. (Ideal: 100%)") # Texto mais curto
+            st.warning(f"Soma: {total_perc}%. (Ideal: 100%)") 
         else:
-            st.success("Soma: 100%.") # Texto mais curto
+            st.success("Soma: 100%.") 
 
-    # st.divider() # Removido para economizar espaço
-    # Removida a seção 4 daqui, pois foi para col_inputs1
-    # Removida a seção 3 daqui, pois foi para col_inputs2
-
-    st.divider() # Este divider separa os INPUTS dos OUTPUTS
+    st.divider() 
 
     if preco_total > 0:
         valor_total_entrada = preco_total * (perc_entrada / 100)
@@ -115,7 +106,7 @@ with tab1:
         valor_parcela_semestral = valor_total_semestral / num_semestral if num_semestral > 0 else 0
 
         st.divider()
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">💰 5. Valores Calculados</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">5. Valores Calculados</h3>', unsafe_allow_html=True)
         
         col3, col4 = st.columns(2)
         with col3:
@@ -205,11 +196,11 @@ Soma dos Percentuais: {total_perc}%
                         st.error(f"Erro ao tentar salvar os dados: {e}")
 
     if st.session_state.resumo_gerado:
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📋 Resumo para Copiar</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">Resumo para Copiar</h3>', unsafe_allow_html=True)
         st.text_area("Use Ctrl+C (ou Cmd+C) para copiar o texto abaixo:", st.session_state.resumo_gerado, height=300, label_visibility="collapsed")
 
 with tab2:
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗂️ Consultar Simulações Salvas</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">Consultar Simulações Salvas</h3>', unsafe_allow_html=True)
     st.info("Clique no botão abaixo para carregar os dados mais recentes da planilha.")
     
     if st.button("Atualizar Dados", use_container_width=True, type="primary"):
