@@ -50,7 +50,9 @@ def format_currency(value):
     except:
         return f"R$ {value:,.2f}"
 
-st.image("LavieC.png", width=250) 
+col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("LavieC.png", width=500)
 st.title("Simulador de Negociação Imobiliária")
 
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
