@@ -402,22 +402,25 @@ with tab2:
                 continue
 
             with st.container(border=True):
-                cols_header = st.columns([1.5, 2, 2, 1.5])
-                cols_header[0].markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
-                cols_header[1].metric("Preço Total", format_currency(preco_total_num))
-                cols_header[2].metric("Entrada", format_currency(val_entrada_num))
-                cols_header[3].metric(f"Mensais ({num_mensal_num}x)", format_currency(val_mensal_num))
+                st.markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
+                cols_header = st.columns(2)
+                cols_header[0].metric("Preço Total", format_currency(preco_total_num))
+                cols_header[1].metric("Entrada", format_currency(val_entrada_num))
                 
                 with st.expander("Ver Detalhes, Gráfico ou Ações"):
                     
                     tab_resumo, tab_acoes = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
                     
                     with tab_resumo:
-                        detail_cols = st.columns(4)
-                        detail_cols[0].metric("Total em Mensais", format_currency(total_mensal))
-                        detail_cols[1].metric(f"Semestrais ({num_semestral_num}x)", format_currency(val_semestral_num))
-                        detail_cols[2].metric("Total em Semestrais", format_currency(total_semestral))
-                        detail_cols[3].metric("Entrega", format_currency(val_entrega_num))
+                        detail_cols = st.columns(2)
+                        detail_cols[0].metric(f"Mensais ({num_mensal_num}x)", format_currency(val_mensal_num))
+                        detail_cols[1].metric("Total em Mensais", format_currency(total_mensal))
+                        
+                        detail_cols2 = st.columns(2)
+                        detail_cols2[0].metric(f"Semestrais ({num_semestral_num}x)", format_currency(val_semestral_num))
+                        detail_cols2[1].metric("Total em Semestrais", format_currency(total_semestral))
+                        
+                        st.metric("Entrega", format_currency(val_entrega_num))
 
                         try:
                             chart_data = pd.DataFrame({
