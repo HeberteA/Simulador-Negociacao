@@ -8,7 +8,6 @@ import time
 
 st.set_page_config(
     page_title="Simulador de Negociação",
-    page_icon="Lavie1.png",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -246,7 +245,7 @@ with tab1:
     
     with form_cols[0]:
         st.markdown("##### Dados da Simulação")
-        unidade = st.text_input("Unidade / Sala")
+        unidade = st.text_input("Unidade / Sala", key="main_unidade")
         preco_total = st.number_input("Preço Total da Unidade (R$)", min_value=0.0, step=1000.0, key="main_preco_total")
 
         st.markdown("##### Nº de Parcelas")
@@ -403,7 +402,7 @@ with tab2:
                 continue
 
             with st.container(border=True):
-                cols_header = st.columns([2, 1, 1, 1.5])
+                cols_header = st.columns([1.5, 2, 2, 1.5])
                 cols_header[0].markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
                 cols_header[1].metric("Preço Total", format_currency(preco_total_num))
                 cols_header[2].metric("Entrada", format_currency(val_entrada_num))
@@ -414,15 +413,12 @@ with tab2:
                     tab_resumo, tab_acoes = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
                     
                     with tab_resumo:
-                        st.markdown("##### Resumo Detalhado")
-                        detail_cols = st.columns(3)
+                        detail_cols = st.columns(4)
                         detail_cols[0].metric("Total em Mensais", format_currency(total_mensal))
                         detail_cols[1].metric(f"Semestrais ({num_semestral_num}x)", format_currency(val_semestral_num))
                         detail_cols[2].metric("Total em Semestrais", format_currency(total_semestral))
-                        detail_cols[0].metric("Entrega", format_currency(val_entrega_num))
+                        detail_cols[3].metric("Entrega", format_currency(val_entrega_num))
 
-                        st.markdown("##### Composição do Pagamento")
-                        
                         try:
                             chart_data = pd.DataFrame({
                                 'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
@@ -430,10 +426,15 @@ with tab2:
                             })
                             chart_data = chart_data[chart_data['Valor'] > 0]
                             
+                            color_scheme = [st.get_option('theme.primaryColor'), '#FFA500', '#FFC04D', '#808080']
+                            
                             if not chart_data.empty:
                                 pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=120, innerRadius=80).encode(
                                     theta=alt.Theta("Valor:Q", stack=True),
-                                    color=alt.Color("Tipo:N", title="Tipo de Pagamento"),
+                                    color=alt.Color("Tipo:N", 
+                                                    title="Tipo de Pagamento", 
+                                                    scale=alt.Scale(domain=['Entrada', 'Mensais', 'Semestrais', 'Entrega'], 
+                                                                    range=color_scheme)),
                                     tooltip=['Tipo', 'Valor', alt.Tooltip("Valor:Q", format=".1%", title="% do Total")]
                                 ).properties(
                                     title="Composição do Valor Total"
@@ -454,7 +455,6 @@ with tab2:
                                     cell = sheet.find(row['Data/Hora'])
                                     if cell:
                                         edit_dialog(row.to_dict(), sheet, cell.row)
-                                        st.rerun()
                                     else:
                                         st.error("Não foi possível encontrar a linha para editar. Tente recarregar.")
                                 except Exception as e:
@@ -465,7 +465,7 @@ with tab2:
                         st.markdown("---") 
 
                         delete_key = f"delete_{index}_{row['Unidade']}"
-                        if st.button("Excluir", key=delete_key, type="primary"):
+                        if st.button("Excluir Simulação", key=delete_key, type="primary"):
                             if sheet:
                                 try:
                                     cell = sheet.find(row['Data/Hora'])
@@ -477,7 +477,7 @@ with tab2:
                                         time.sleep(1)
                                         st.rerun()
                                     else:
-                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarregar.")
+                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarVregar.")
                                 except Exception as e:
                                     st.error(f"Erro ao excluir linha: {e}")
                             else:
