@@ -4,6 +4,7 @@ import pandas as pd
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
+import locale
 
 st.set_page_config(
     page_title="Simulador de Negociação",
@@ -13,6 +14,15 @@ st.set_page_config(
 
 COR_PRIMARIA = "#E37026" 
 
+def format_currency(value):
+    try:
+        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+        return locale.currency(value, grouping=True, symbol='R$')
+    except (ValueError, TypeError):
+        return "R$ 0,00"
+    except Exception:
+        return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        
 def get_gspread_client():
     try:
         creds_json = dict(st.secrets.gcp_service_account)
