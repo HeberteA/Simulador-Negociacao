@@ -14,44 +14,67 @@ st.set_page_config(
 
 COR_PRIMARIA = "#E37026" 
 
+
 def format_currency(value):
-    try:
-        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-        return locale.currency(value, grouping=True, symbol='R$')
-    except (ValueError, TypeError):
+    if value is None:
         return "R$ 0,00"
-    except Exception:
-        return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+@st.cache_resource(ttl=3600)
 def get_gspread_client():
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
     try:
-        creds_json = dict(st.secrets.gcp_service_account)
-        scopes = [
-            'https://www.googleapis.com/auth/spreadsheets',
-            'https://www.googleapis.com/auth/drive'
-        ]
-        creds = Credentials.from_service_account_info(creds_json, scopes=scopes)
+        creds_dict = st.secrets["gcp_service_account"]
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
         client = gspread.authorize(creds)
         return client
     except Exception as e:
-        st.error(f"Erro ao conectar com o Google Sheets (Autenticação): {e}")
+        st.error(f"Erro ao autenticar com o Google: {e}")
         return None
 
+@st.cache_resource(ttl=3600)
 def get_worksheet(client):
     try:
-        spreadsheet_key = st.secrets.spreadsheet_key
-        worksheet_name = st.secrets.worksheet_name
-        sheet = client.open_by_key(spreadsheet_key).worksheet(worksheet_name)
-        return sheet
+        spreadsheet_key = st.secrets["spreadsheet_info"]["spreadsheet_key"]
+        worksheet_name = st.secrets["spreadsheet_info"]["worksheet_name"]
+        spreadsheet = client.open_by_key(spreadsheet_key)
+        worksheet = spreadsheet.worksheet(worksheet_name)
+        return worksheet
     except gspread.exceptions.SpreadsheetNotFound:
-        st.error("Erro: Planilha (Spreadsheet) não encontrada. Verifique a 'spreadsheet_key'.")
+        st.error("Erro: Planilha não encontrada. Verifique a 'spreadsheet_key'.")
         return None
     except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Erro: Aba (Worksheet) '{worksheet_name}' não encontrada. Verifique 'worksheet_name'.")
+        st.error(f"Erro: Aba '{worksheet_name}' não encontrada na planilha.")
         return None
     except Exception as e:
         st.error(f"Erro ao abrir a planilha: {e}")
         return None
+
+@st.cache_data(ttl=600)
+def carregar_dados_planilha(_sheet):
+    try:
+        data = _sheet.get_all_records()
+        if not data:
+            st.warning("Nenhuma simulação encontrada na planilha.")
+            return pd.DataFrame()
+        
+        df = pd.DataFrame(data)
+        
+        cols_numericas = [
+            'Preco Total', 'Valor Entrada', 'Valor Mensal', 
+            'Valor Semestral', 'Valor Entrega'
+        ]
+        for col in cols_numericas:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+        
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar dados da planilha: {e}")
+        return pd.DataFrame()
 
 
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
