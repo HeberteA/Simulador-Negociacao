@@ -16,7 +16,11 @@ COR_PRIMARIA = "#E37026"
 def get_gspread_client():
     try:
         creds_json = dict(st.secrets.gcp_service_account)
-        creds = Credentials.from_service_account_info(creds_json)
+         scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        creds = Credentials.from_service_account_info(creds_json, scopes=scopes)
         client = gspread.authorize(creds)
         return client
     except Exception as e:
