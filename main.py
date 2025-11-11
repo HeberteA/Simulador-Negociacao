@@ -183,7 +183,7 @@ with tab2:
         sheet = get_worksheet(client)
         if sheet:
             try:
-                @st.cache_data(ttl=60)
+                @st.cache_data(ttl=60) 
                 def carregar_dados_planilha():
                     dados = sheet.get_all_records()
                     if not dados:
@@ -210,36 +210,83 @@ with tab2:
                             cols_header[1].metric("Preço Total", format_currency(row['Preco Total']))
                             cols_header[2].metric("Entrada", format_currency(row['Valor Entrada']))
 
-                            with st.expander("Ver Detalhes, Editar ou Excluir"):
-                                col_details1, col_details2, col_actions = st.columns([2, 2, 1])
-
-                                with col_details1:
-                                    st.markdown(f"**Parcelas Mensais ({row['% Mensal']}%)**")
-                                    st.text(f"{row['Nº Mensal']}x de {format_currency(row['Valor Mensal'])}")
-                                    
-                                    st.markdown(f"**Parcelas Semestrais ({row['% Semestral']}%)**")
-                                    st.text(f"{row['Nº Semestral']}x de {format_currency(row['Valor Semestral'])}")
-
-                                with col_details2:
-                                    st.markdown(f"**Entrega ({row['% Entrega']}%)**")
-                                    st.text(format_currency(row['Valor Entrega']))
+                            with st.expander("Ver Resumo, Gráfico e Ações"):
+                                tab_resumo, tab_edit = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
                                 
-                                with col_actions:
-                                    st.markdown("**Ações**")
-                                    if st.button("Excluir", key=f"delete_{index}", type="primary"):
+                                with tab_resumo:
+                                    st.markdown("##### Detalhamento dos Pagamentos")
+                                    col_r1, col_r2, col_r3 = st.columns(3)
+                                    col_r1.metric(
+                                        f"Parcelas Mensais ({row['% Mensal']}%)", 
+                                        format_currency(row['Valor Mensal']),
+                                        f"{row['Nº Mensal']}x"
+                                    )
+                                    col_r2.metric(
+                                        f"Parcelas Semestrais ({row['% Semestral']}%)",
+                                        format_currency(row['Valor Semestral']),
+                                        f"{row['Nº Semestral']}x"
+                                    )
+                                    col_r3.metric(
+                                        f"Entrega ({row['% Entrega']}%)",
+                                        format_currency(row['Valor Entrega'])
+                                    )
+
+                                    st.divider() 
+                                    st.markdown("##### Composição do Valor Total")
+                                    try:
+                                        total_mensal_calc = row['Valor Mensal'] * row['Nº Mensal']
+                                        total_semestral_calc = row['Valor Semestral'] * row['Nº Semestral']
+                                        total_entrada_calc = row['Valor Entrada']
+                                        total_entrega_calc = row['Valor Entrega']
+
+                                        chart_data = pd.DataFrame({
+                                            'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
+                                            'Valor': [total_entrada_calc, total_mensal_calc, total_semestral_calc, total_entrega_calc],
+                                            'Percentual': [row['% Entrada'], row['% Mensal'], row['% Semestral'], row['% Entrega']]
+                                        })
+                                        
+                                        chart_data = chart_data[chart_data['Valor'] > 0]
+
+                                        base = alt.Chart(chart_data).encode(
+                                            theta=alt.Theta("Valor:Q", stack=True)
+                                        ).properties(
+                                            title='Composição do Pagamento'
+                                        )
+
+                                        donut = base.mark_arc(outerRadius=120, innerRadius=80).encode(
+                                            color=alt.Color("Tipo:N", title="Tipo de Pagamento"),
+                                            order=alt.Order("Valor:Q", sort="descending"),
+                                            tooltip=["Tipo", "Valor", alt.Tooltip("Percentual:Q", format=".1f", title="%")]
+                                        )
+                                        
+                                        text = base.mark_text(radius=140, fill="white").encode(
+                                            text=alt.Text("Percentual:Q", format=".1f", title="%"),
+                                            order=alt.Order("Valor:Q", sort="descending")
+                                        )
+
+                                        chart = donut + text
+                                        st.altair_chart(chart, use_container_width=True)
+
+                                    except Exception as e:
+                                        st.error(f"Não foi possível gerar o gráfico. {e}")
+                                    
+                                    
+                                with tab_edit:
+                                    st.markdown("##### Editar Simulação")
+                                    st.info("A edição de simulações está em desenvolvimento. Por favor, exclua esta e crie uma nova.")
+
+                                    st.divider()
+
+                                    st.markdown("##### Excluir Simulação")
+                                    if st.button("Excluir esta simulação", key=f"delete_{index}", type="primary"):
                                         try:
                                             sheet.delete_rows(index + 2)
                                             st.cache_data.clear() 
                                             st.success(f"Simulação da Obra {row['Obra']} (Unid: {row['Unidade']}) excluída.")
-                                            st.rerun()
+                                            st.rerun() 
                                         except Exception as e:
                                             st.error(f"Erro ao excluir: {e}")
-                                    
-                                    if st.button("Editar", key=f"edit_{index}", disabled=True):
-                                        st.info("Função de editar em desenvolvimento.")
-                                    
-                                    if st.button("Dashboard", key=f"dash_{index}", disabled=True):
-                                        st.info("Função de dashboard em desenvolvimento.")
+                            
 
             except Exception as e:
                 st.error(f"Erro ao carregar dados da planilha: {e}")
