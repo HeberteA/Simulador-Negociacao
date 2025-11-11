@@ -6,8 +6,8 @@ import locale
 
 st.set_page_config(
     page_title="Simulador de Negociação",
-    page_icon="Lavie1.png",
-    layout="centered"
+    page_icon="📈",
+    layout="centered" # layout="centered" já é o modo "sem sidebar"
 )
 
 # Cor primária da sua marca para usar em elementos customizados
@@ -18,7 +18,7 @@ def connect_to_gsheets():
     try:
         creds_dict = st.secrets["gcp_service_account"]
         scopes = [
-            "https://www.googleapis.com/auth/spreadsheets",
+            "https.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
         ]
         creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
@@ -51,14 +51,16 @@ def format_currency(value):
     except:
         return f"R$ {value:,.2f}"
 
-st.image("LavieC.png", width=250) 
+# --- LAYOUT PRINCIPAL ---
 
+# Adicione a URL do seu logo aqui para branding, se desejar
+# st.image("URL_DO_SEU_LOGO_AQUI", width=250) 
 st.title("Simulador de Negociação Imobiliária")
 
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
 
 with tab1:
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">1. Selecione a Obra</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🏗️ 1. Selecione a Obra</h3>', unsafe_allow_html=True)
     
     lista_obras = [
         "Burj Lavie",
@@ -70,12 +72,12 @@ with tab1:
     st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed")
 
     st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">2. Dados da Simulação</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🔢 2. Dados da Simulação</h3>', unsafe_allow_html=True)
     st.text_input("Número da Sala / Unidade", key="sala")
     preco_total = st.number_input("Preço da Sala (R$)", min_value=0.0, value=500000.0, step=1000.0, format="%.2f")
 
     st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">3. Definição do Fluxo de Pagamento (%)</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📊 3. Definição do Fluxo de Pagamento (%)</h3>', unsafe_allow_html=True)
 
     perc_entrada = st.slider("Entrada (%)", 0, 100, 20)
     perc_mensal = st.slider("Parcelas Mensais (%)", 0, 100, 30)
@@ -89,7 +91,7 @@ with tab1:
         st.success("A soma dos percentuais é 100%.")
 
     st.divider()
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗓️ 4. Número de Parcelas (N/P)</h3>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -107,7 +109,7 @@ with tab1:
         valor_parcela_semestral = valor_total_semestral / num_semestral if num_semestral > 0 else 0
 
         st.divider()
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">5. Valores Calculados</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">💰 5. Valores Calculados</h3>', unsafe_allow_html=True)
         
         col3, col4 = st.columns(2)
         with col3:
@@ -197,11 +199,11 @@ Soma dos Percentuais: {total_perc}%
                         st.error(f"Erro ao tentar salvar os dados: {e}")
 
     if st.session_state.resumo_gerado:
-        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">Resumo para Copiar</h3>', unsafe_allow_html=True)
+        st.markdown(f'<h3 style="color: {COR_PRIMARIA};">📋 Resumo para Copiar</h3>', unsafe_allow_html=True)
         st.text_area("Use Ctrl+C (ou Cmd+C) para copiar o texto abaixo:", st.session_state.resumo_gerado, height=300, label_visibility="collapsed")
 
 with tab2:
-    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">Consultar Simulações Salvas</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color: {COR_PRIMARIA};">🗂️ Consultar Simulações Salvas</h3>', unsafe_allow_html=True)
     st.info("Clique no botão abaixo para carregar os dados mais recentes da planilha.")
     
     if st.button("Atualizar Dados", use_container_width=True, type="primary"):
