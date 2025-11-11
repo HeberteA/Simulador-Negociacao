@@ -203,7 +203,7 @@ with tab2:
                 else:
                     for index, row in df.iterrows():
                         with st.container(border=True):
-                            cols_header = st.columns([3, 2, 2])
+                            cols_header = st.columns([2, 2.5, 2.5])
                             cols_header[0].markdown(f"**{row['Obra']}** (Unid: **{row['Unidade'] or 'N/D'}**)")
                             cols_header[0].caption(f"Salvo em: {row['Data/Hora']}")
                             
