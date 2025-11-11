@@ -164,19 +164,72 @@ with tab1:
 with tab2:
     st.markdown(f'<h3 style="color: {COR_PRIMARIA};">Simulações Salvas</h3>', unsafe_allow_html=True)
     
+    if st.button("Atualizar Dados"):
+        st.cache_data.clear() 
+        st.rerun()
+
     client = get_gspread_client()
     if client:
         sheet = get_worksheet(client)
         if sheet:
             try:
-                dados = sheet.get_all_records()
-                if dados:
+                @st.cache_data(ttl=60)
+                def carregar_dados_planilha():
+                    dados = sheet.get_all_records()
+                    if not dados:
+                        return pd.DataFrame()
+                    
                     df = pd.DataFrame(dados)
-                    st.dataframe(df, use_container_width=True)
-                else:
+                    cols_num = ['Preco Total', 'Valor Entrada', 'Valor Mensal', 'Valor Semestral', 'Valor Entrega']
+                    for col in cols_num:
+                        if col in df.columns:
+                            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+                    return df
+
+                df = carregar_dados_planilha()
+
+                if df.empty:
                     st.info("Nenhuma simulação salva ainda.")
+                else:
+                    for index, row in df.iterrows():
+                        with st.container(border=True):
+                            cols_header = st.columns([3, 2, 2])
+                            cols_header[0].markdown(f"**{row['Obra']}** (Unid: **{row['Unidade'] or 'N/D'}**)")
+                            cols_header[0].caption(f"Salvo em: {row['Data/Hora']}")
+                            
+                            cols_header[1].metric("Preço Total", format_currency(row['Preco Total']))
+                            cols_header[2].metric("Entrada", format_currency(row['Valor Entrada']))
+
+                            with st.expander("Ver Detalhes, Editar ou Excluir"):
+                                col_details1, col_details2, col_actions = st.columns([2, 2, 1])
+
+                                with col_details1:
+                                    st.markdown(f"**Parcelas Mensais ({row['% Mensal']}%)**")
+                                    st.text(f"{row['Nº Mensal']}x de {format_currency(row['Valor Mensal'])}")
+                                    
+                                    st.markdown(f"**Parcelas Semestrais ({row['% Semestral']}%)**")
+                                    st.text(f"{row['Nº Semestral']}x de {format_currency(row['Valor Semestral'])}")
+
+                                with col_details2:
+                                    st.markdown(f"**Entrega ({row['% Entrega']}%)**")
+                                    st.text(format_currency(row['Valor Entrega']))
+                                
+                                with col_actions:
+                                    st.markdown("**Ações**")
+                                    if st.button("Excluir", key=f"delete_{index}", type="primary"):
+                                        try:
+                                            sheet.delete_rows(index + 2)
+                                            st.cache_data.clear() 
+                                            st.success(f"Simulação da Obra {row['Obra']} (Unid: {row['Unidade']}) excluída.")
+                                            st.rerun()
+                                        except Exception as e:
+                                            st.error(f"Erro ao excluir: {e}")
+                                    
+                                    if st.button("Editar", key=f"edit_{index}", disabled=True):
+                                        st.info("Função de editar em desenvolvimento.")
+                                    
+                                    if st.button("Dashboard", key=f"dash_{index}", disabled=True):
+                                        st.info("Função de dashboard em desenvolvimento.")
+
             except Exception as e:
                 st.error(f"Erro ao carregar dados da planilha: {e}")
-    
-    if st.button("Atualizar Dados"):
-        st.rerun()
