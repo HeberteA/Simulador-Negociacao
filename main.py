@@ -261,16 +261,16 @@ with tab1:
 
         def atualizar_percentual():
             st.session_state.total_percent = (
-                st.session_state.get('perc_entrada', 0.0) +
-                st.session_state.get('perc_mensal', 0.0) +
-                st.session_state.get('perc_semestral', 0.0) +
-                st.session_state.get('perc_entrega', 0.0)
+                st.session_state.get('perc_entrada', 20.0) +
+                st.session_state.get('perc_mensal', 30.0) +
+                st.session_state.get('perc_semestral', 20.0) +
+                st.session_state.get('perc_entrega', 30.0)
             )
 
-        perc_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, 20, 0.5, key="perc_entrada", on_change=atualizar_percentual)
-        perc_mensal = st.number_input("Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, 30, 0.5, key="perc_mensal", on_change=atualizar_percentual)
-        perc_semestral = st.number_input("Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, 20, 0.5, key="perc_semestral", on_change=atualizar_percentual)
-        perc_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, 30, 0.5, key="perc_entrega", on_change=atualizar_percentual)
+        perc_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
+        perc_mensal = st.number_input("Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
+        perc_semestral = st.number_input("Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f",, 20, 0.5, key="perc_semestral", on_change=atualizar_percentual)
+        perc_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
 
         total_percent = st.session_state.total_percent
         
