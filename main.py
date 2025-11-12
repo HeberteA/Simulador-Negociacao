@@ -496,7 +496,6 @@ with tab2:
                                     st.error(f"Erro ao excluir linha: {e}")
                             else:
                                 st.error("Não foi possível excluir: conexão com planilha perdida.")
-    elif df is None:
-        st.error("Falha ao carregar simulações salvas.")
+    
     else:
         st.info("Nenhuma simulação salva para exibir.")
