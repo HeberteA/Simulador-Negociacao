@@ -129,22 +129,22 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         
         perc_entrada = st.number_input(
             "Entrada (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Entrada', 20)), 
+            value=float(row_data.get('% Entrada', 0)), 
             step=0.5, key="edit_perc_entrada", format="%.2f", on_change=atualizar_percentual_edit
         )
         perc_mensal = st.number_input(
             "Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, 
-            value=float(row_data.get('% Mensal', 30)), 
+            value=float(row_data.get('% Mensal', 0)), 
             step=0.5, key="edit_perc_mensal", format="%.2f", on_change=atualizar_percentual_edit
         )
         perc_semestral = st.number_input(
             "Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, 
-            value=float(row_data.get('% Semestral', 20)), 
+            value=float(row_data.get('% Semestral', 0)), 
             step=0.5, key="edit_perc_semestral", format="%.2f", on_change=atualizar_percentual_edit
         )
         perc_entrega = st.number_input(
             "Entrega (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Entrega', 30)), 
+            value=float(row_data.get('% Entrega', 0)), 
             step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
         )
 
