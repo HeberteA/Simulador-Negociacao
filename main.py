@@ -144,8 +144,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         )
         perc_entrega = st.number_input(
             "Entrega (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Entrega', 0)), 
-            step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
+            step=0.5, key="edit_perc_entrega", format="%.2f"
         )
 
         total_percent = st.session_state.edit_total_percent
