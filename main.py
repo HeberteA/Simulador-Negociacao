@@ -90,10 +90,10 @@ def edit_dialog(row_data, sheet, sheet_row_index):
     
     def atualizar_percentual_edit():
         st.session_state.edit_total_percent = (
-            st.session_state.get('edit_perc_entrada', 20) +
-            st.session_state.get('edit_perc_mensal', 30) +
-            st.session_state.get('edit_perc_semestral', 20) +
-            st.session_state.get('edit_perc_entrega', 30)
+            st.session_state.get('edit_perc_entrada', 0.0) +
+            st.session_state.get('edit_perc_mensal', 0.0) +
+            st.session_state.get('edit_perc_semestral', 0.0) +
+            st.session_state.get('edit_perc_entrega', 0.0)
         )
 
     form_cols = st.columns(2)
@@ -144,7 +144,8 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         )
         perc_entrega = st.number_input(
             "Entrega (%)", min_value=0.0, max_value=100.0,
-            step=0.5, key="edit_perc_entrega", format="%.2f"
+            value=float(row_data.get('% Semestral', 0)), 
+            step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
         )
 
         total_percent = st.session_state.edit_total_percent
@@ -266,10 +267,10 @@ with tab1:
                 st.session_state.get('perc_entrega', 0.0)
             )
 
-        perc_entrada = st.slider("Entrada (%)", 0.0, 100.0, 0.0, 0.5, key="perc_entrada", on_change=atualizar_percentual)
-        perc_mensal = st.slider("Total Parcelas Mensais (%)", 0.0, 100.0, 0.0, 0.5, key="perc_mensal", on_change=atualizar_percentual)
-        perc_semestral = st.slider("Total Parcelas Semestrais (%)", 0.0, 100.0, 0.0, 0.5, key="perc_semestral", on_change=atualizar_percentual)
-        perc_entrega = st.slider("Entrega (%)", 0.0, 100.0, 0.0, 0.5, key="perc_entrega", on_change=atualizar_percentual)
+        perc_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, 20.0, 0.5, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
+        perc_mensal = st.number_input("Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, 30.0, 0.5, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
+        perc_semestral = st.number_input("Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, 20.0, 0.5, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
+        perc_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, 30.0, 0.5, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
 
         total_percent = st.session_state.total_percent
         
