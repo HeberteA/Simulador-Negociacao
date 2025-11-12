@@ -297,8 +297,8 @@ with tab1:
     
     calc_cols = st.columns(4)
     calc_cols[0].metric("Valor Entrada", format_currency(val_entrada))
-    calc_cols[1].metric(f"Valor Mensal ({num_mensal}x)", format_currency(val_por_mensal))
-    calc_cols[2].metric(f"Valor Semestral ({num_semestral}x)", format_currency(val_por_semestral))
+    calc_cols[1].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x)
+    calc_cols[2].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x)
     calc_cols[3].metric("Valor Entrega", format_currency(val_entrega))
 
     st.markdown("---")
