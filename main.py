@@ -17,7 +17,7 @@ background_texture_css = """
 <style>
 [data-testid="stAppViewContainer"] {
     /* Opção: Linho Preto (Sutil e Elegante) */
-    background-color: #424242;
+    background-color: #000000;
     background-image: url("https://www.transparenttextures.com/patterns/escheresque-dark.png");
     background-repeat: repeat;
 }
