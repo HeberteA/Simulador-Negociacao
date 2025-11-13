@@ -39,7 +39,7 @@ def get_worksheet():
         creds_dict = st.secrets["gcp_service_account"]
         creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
         client = gspread.authorize(creds)
-        
+
         spreadsheet_key = st.secrets["spreadsheet_info"]["spreadsheet_key"]
         worksheet_name = st.secrets["spreadsheet_info"]["worksheet_name"]
         spreadsheet = client.open_by_key(spreadsheet_key)
@@ -73,394 +73,440 @@ def carregar_dados_planilha():
         if not data:
             st.warning("Nenhuma simulação encontrada na planilha.")
             return pd.DataFrame()
-        
+
         df = pd.DataFrame(data)
-        
+
         cols_para_converter = [
             'Preco Total', 'Valor Entrada', 'Valor Mensal', 'Valor Semestral', 'Valor Entrega',
             '% Entrada', '% Mensal', '% Semestral', '% Entrega',
             'Nº Mensal', 'Nº Semestral'
         ]
-        
+
         for col in cols_para_converter:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
-        
+
         return df
     except Exception as e:
         st.error(f"Erro ao carregar dados da planilha: {e}")
         return pd.DataFrame()
 
-def set_default_values():
-    defaults = {
-        "main_unidade": "101",
-        "main_preco_total": 100000.0,
-        "main_num_mensal": 12,
-        "main_num_semestral": 0,
-        "perc_entrada": 20.0,
-        "perc_mensal": 60.0,
-        "perc_semestral": 0.0,
-        "perc_entrega": 20.0,
-        "total_percent": 100.0
-    }
-    
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
 
-def reset_to_default_values():
-    defaults = {
-        "main_unidade": "101",
-        "main_preco_total": 100000.0,
-        "main_num_mensal": 12,
-        "main_num_semestral": 0,
-        "perc_entrada": 20.0,
-        "perc_mensal": 60.0,
-        "perc_semestral": 0.0,
-        "perc_entrega": 20.0,
-        "total_percent": 100.0
-    }
-    
-    for key, value in defaults.items():
-        st.session_state[key] = value
-    
-    st.session_state.summary_text = ""
-    st.session_state.data_to_save = None
-    
-def edit_dialog(row_data, row_index, sheet):
-    dialog = st.dialog("Editar Simulação", dismissible=True)
-    with dialog:
-        st.markdown(f"### Editando Unidade: {row_data['Unidade']}")
-        
-        key_prefix = f"edit_{row_index}"
-        
-        if f"{key_prefix}_preco" not in st.session_state:
-            st.session_state[f"{key_prefix}_preco"] = float(row_data.get('Preco Total', 0))
-            st.session_state[f"{key_prefix}_ent_perc"] = float(row_data.get('% Entrada', 0))
-            st.session_state[f"{key_prefix}_mens_perc"] = float(row_data.get('% Mensal', 0))
-            st.session_state[f"{key_prefix}_sem_perc"] = float(row_data.get('% Semestral', 0))
-            st.session_state[f"{key_prefix}_entg_perc"] = float(row_data.get('% Entrega', 0))
-            st.session_state[f"{key_prefix}_num_mens"] = int(row_data.get('Nº Mensal', 0))
-            st.session_state[f"{key_prefix}_num_sem"] = int(row_data.get('Nº Semestral', 0))
+@st.dialog("Editar Simulação")
+def edit_dialog(row_data, sheet, sheet_row_index):
+    st.markdown(f"Editando **{row_data['Obra']}** | Unidade: **{row_data['Unidade']}**")
 
-        preco_total_edit = st.number_input(
-            "Preço Total da Unidade (R$)", 
-            min_value=0.0, 
-            key=f"{key_prefix}_preco",
-            format="%.2f",
-            step=1000.0
+    if "edit_total_percent" not in st.session_state:
+        st.session_state.edit_total_percent = float(row_data.get('% Entrada', 0) + row_data.get('% Mensal', 0) + row_data.get('% Semestral', 0) + row_data.get('% Entrega', 0))
+
+    def atualizar_percentual_edit():
+        st.session_state.edit_total_percent = (
+            st.session_state.get('edit_perc_entrada', 0.0) +
+            st.session_state.get('edit_perc_mensal', 0.0) +
+            st.session_state.get('edit_perc_semestral', 0.0) +
+            st.session_state.get('edit_perc_entrega', 0.0)
         )
-        
-        edit_c1, edit_c2 = st.columns(2)
-        with edit_c1:
-            num_mensal_edit = st.number_input("Nº de Parcelas Mensais", min_value=0, step=1, key=f"{key_prefix}_num_mens")
-        with edit_c2:
-            num_semestral_edit = st.number_input("Nº de Parcelas Semestrais", min_value=0, step=1, key=f"{key_prefix}_num_sem")
 
-        perc_entrada_edit = st.slider("Entrada (%)", 0.0, 100.0, key=f"{key_prefix}_ent_perc")
-        perc_mensal_edit = st.slider("Total Parcelas Mensais (%)", 0.0, 100.0, key=f"{key_prefix}_mens_perc")
-        perc_semestral_edit = st.slider("Total Parcelas Semestrais (%)", 0.0, 100.0, key=f"{key_prefix}_sem_perc")
-        perc_entrega_edit = st.slider("Entrega (%)", 0.0, 100.0, key=f"{key_prefix}_entg_perc")
-        
-        total_percent_edit = perc_entrada_edit + perc_mensal_edit + perc_semestral_edit + perc_entrega_edit
-        st.slider("Total (%)", 0.0, 200.0, total_percent_edit, disabled=True, key=f"{key_prefix}_total")
-        
-        if total_percent_edit != 100.0:
-            st.warning(f"Atenção: A soma dos percentuais é {total_percent_edit:.2f}%. Deve ser 100%.")
+    form_cols = st.columns(2)
+    with form_cols[0]:
+        st.markdown("##### Dados da Simulação")
+        st.text_input("Unidade / Sala", value=row_data['Unidade'], disabled=True)
+        preco_total = st.number_input(
+            "Preço Total (R$)", 
+            min_value=0.0, 
+            step=1000.0, 
+            value=float(row_data.get('Preco Total', 500000)), 
+            key="edit_preco_total"
+        )
 
-        if st.button("Salvar Alterações", key=f"{key_prefix}_save_btn", type="primary"):
-            if total_percent_edit != 100.0:
-                st.error("A soma dos percentuais deve ser 100% para salvar.")
-            else:
-                try:
-                    valor_entrada = preco_total_edit * (perc_entrada_edit / 100)
-                    total_mensal = preco_total_edit * (perc_mensal_edit / 100)
-                    valor_mensal = total_mensal / num_mensal_edit if num_mensal_edit > 0 else 0
-                    total_semestral = preco_total_edit * (perc_semestral_edit / 100)
-                    valor_semestral = total_semestral / num_semestral_edit if num_semestral_edit > 0 else 0
-                    valor_entrega = preco_total_edit * (perc_entrega_edit / 100)
+        st.markdown("##### Nº de Parcelas")
+        num_mensal = st.number_input(
+            "Nº de Parcelas Mensais", 
+            min_value=0, 
+            step=1, 
+            value=int(row_data.get('Nº Mensal', 36)), 
+            key="edit_num_mensal"
+        )
+        num_semestral = st.number_input(
+            "Nº de Parcelas Semestrais", 
+            min_value=0, 
+            step=1, 
+            value=int(row_data.get('Nº Semestral', 6)), 
+            key="edit_num_semestral"
+        )
 
-                    updated_row_data = [
-                        row_data['Obra'],
-                        row_data['Unidade'],
-                        preco_total_edit,
-                        perc_entrada_edit,
-                        valor_entrada,
-                        perc_mensal_edit,
-                        num_mensal_edit,
-                        valor_mensal,
-                        perc_semestral_edit,
-                        num_semestral_edit,
-                        valor_semestral,
-                        perc_entrega_edit,
-                        valor_entrega,
-                        row_data['Data/Hora']
-                    ]
-                    
-                    sheet.update(f'A{row_index}:N{row_index}', [updated_row_data], value_input_option='USER_ENTERED')
-                    st.success("Simulação atualizada com sucesso!")
-                    st.cache_data.clear()
-                    
-                    keys_to_clear = [k for k in st.session_state if k.startswith(key_prefix)]
-                    for k in keys_to_clear:
-                        del st.session_state[k]
-                    
-                    st.rerun()
-                
-                except Exception as e:
-                    st.error(f"Erro ao salvar: {e}")
-def main():
-    
-    set_default_values()
+    with form_cols[1]:
+        st.markdown("##### Definição do Fluxo de Pagamento (%)")
 
+        perc_entrada = st.number_input(
+            "Entrada (%)", min_value=0.0, max_value=100.0,
+            value=float(row_data.get('% Entrada', 0)), 
+            step=0.5, key="edit_perc_entrada", format="%.2f", on_change=atualizar_percentual_edit
+        )
+        perc_mensal = st.number_input(
+            "Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, 
+            value=float(row_data.get('% Mensal', 0)), 
+            step=0.5, key="edit_perc_mensal", format="%.2f", on_change=atualizar_percentual_edit
+        )
+        perc_semestral = st.number_input(
+            "Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, 
+            value=float(row_data.get('% Semestral', 0)), 
+            step=0.5, key="edit_perc_semestral", format="%.2f", on_change=atualizar_percentual_edit
+        )
+        perc_entrega = st.number_input(
+            "Entrega (%)", min_value=0.0, max_value=100.0,
+            value=float(row_data.get('% Semestral', 0)), 
+            step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
+        )
+
+        total_percent = st.session_state.edit_total_percent
+        if total_percent > 100.0:
+            st.error(f"Percentual excede 100%! ({total_percent:.1f}%)")
+        elif total_percent < 100.0:
+            st.warning(f"Percentual não fecha 100%. ({total_percent:.1f}%)")
+        else:
+            st.success(f"Percentual fechado em 100%!")
+
+    st.markdown("---")
+
+    if st.button("Salvar Alterações", type="primary", use_container_width=True):
+        if round(total_percent, 1) != 100.0:
+            st.error(f"O percentual total deve ser 100% para salvar (Atual: {total_percent:.1f}%).")
+        else:
+            val_entrada = (preco_total * perc_entrada) / 100
+            val_total_mensal = (preco_total * perc_mensal) / 100
+            val_total_semestral = (preco_total * perc_semestral) / 100
+            val_entrega = (preco_total * perc_entrega) / 100
+
+            val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
+            val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
+
+            linha_atualizada = [
+                row_data['Obra'], row_data['Unidade'], preco_total,
+                perc_entrada, val_entrada,
+                perc_mensal, num_mensal, val_por_mensal,
+                perc_semestral, num_semestral, val_por_semestral,
+                perc_entrega, val_entrega,
+                row_data['Data/Hora']
+            ]
+
+            try:
+                range_to_update = f'A{sheet_row_index}:N{sheet_row_index}'
+                sheet.update(range_to_update, [linha_atualizada], value_input_option='USER_ENTERED')
+
+                st.toast("Alterações salvas com sucesso!")
+
+                st.cache_data.clear()
+                st.cache_resource.clear()
+
+                keys_to_delete = [k for k in st.session_state if k.startswith('edit_')]
+                for k in keys_to_delete:
+                    del st.session_state[k]
+
+                return True
+            except Exception as e:
+                st.error(f"Erro ao salvar: {e}")
+                return False
+
+    if st.button("Cancelar", use_container_width=True):
+        keys_to_delete = [k for k in st.session_state if k.startswith('edit_')]
+        for k in keys_to_delete:
+            del st.session_state[k]
+        return True
+
+
+try:
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("LavieC.png", width=500)
+except FileNotFoundError:
+    st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
+except Exception as e:
+    st.error(f"Não foi possível carregar a imagem: {e}")
+
+
+st.title("Simulador de Negociação")
+st.markdown("---")
+
+lista_obras = [
+    "Burj Lavie",
+    "Lavie Areia Dourada",
+    "The Well By OM25 e Lavie",
+    "Lavie Camboinha",
+    "Arc Space"
+]
+
+obra_selecionada = st.selectbox(
+    "Escolha a Obra para simular:", 
+    lista_obras, 
+    key="obra", 
+    label_visibility="collapsed"
+)
+
+tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
+
+with tab1:
     if "summary_text" not in st.session_state:
         st.session_state.summary_text = ""
     if "data_to_save" not in st.session_state:
         st.session_state.data_to_save = None
 
-    try:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.image("LavieC.png", width=400)
-    except Exception:
-        st.error("Erro ao carregar logo. Verifique se 'LavieC.png' está na pasta.")
+    st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Nova Simulação: {obra_selecionada}</span>", unsafe_allow_html=True)
 
-    st.title("Simulador de Negociação")
+    form_cols = st.columns(2)
 
-    lista_obras = [
-        "Burj Lavie",
-        "Lavie Areia Dourada",
-        "The Well By OM25 e Lavie",
-        "Lavie Camboinha",
-        "Arc Space"
-    ]
-    obra_selecionada = st.selectbox("Obra", lista_obras, key="obra", label_visibility="collapsed")
+    with form_cols[0]:
+        st.markdown("##### Dados da Simulação")
+        unidade = st.text_input("Unidade / Sala", key="main_unidade")
+        preco_total = st.number_input("Preço Total da Unidade (R$)", min_value=0.0, step=1000.0, key="main_preco_total")
 
-    tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
+        st.markdown("##### Nº de Parcelas")
+        num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
+        num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=0, step=1, key="main_num_semestral")
 
-    with tab1:
-        st.markdown(f"### Nova Simulação: <span style='color:{st.theme.primaryColor};'>{obra_selecionada}</span>", unsafe_allow_html=True)
-        
-        col_form_1, col_form_2 = st.columns(2)
-        
-        with col_form_1:
-            st.markdown("##### Dados da Simulação")
-            unidade = st.text_input("Unidade / Sala", key="main_unidade")
-            preco_total = st.number_input(
-                "Preço Total da Unidade (R$)", 
-                min_value=0.0, 
-                key="main_preco_total",
-                format="%.2f",
-                step=10000.0
+    with form_cols[1]:
+        st.markdown("##### Definição do Fluxo de Pagamento (%)")
+
+        if "total_percent" not in st.session_state:
+            st.session_state.total_percent = 0.0
+
+        def atualizar_percentual():
+            st.session_state.total_percent = (
+                st.session_state.get('perc_entrada', 0.0) +
+                st.session_state.get('perc_mensal', 0.0) +
+                st.session_state.get('perc_semestral', 0.0) +
+                st.session_state.get('perc_entrega', 0.0)
             )
 
-            st.markdown("##### Nº de Parcelas")
-            num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
-            num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=0, step=1, key="main_num_semestral")
+        perc_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
+        perc_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
+        st.markdown("##### % de Parcelas")
+        perc_mensal = st.number_input("Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
+        perc_semestral = st.number_input("Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
 
-        with col_form_2:
-            st.markdown("##### Definição do Fluxo de Pagamento (%)")
-            
-            perc_entrada = st.slider("Entrada (%)", 0.0, 100.0, key="perc_entrada", step=0.5)
-            perc_mensal = st.slider("Total Parcelas Mensais (%)", 0.0, 100.0, key="perc_mensal", step=0.5)
-            perc_semestral = st.slider("Total Parcelas Semestrais (%)", 0.0, 100.0, key="perc_semestral", step=0.5)
-            perc_entrega = st.slider("Entrega (%)", 0.0, 100.0, key="perc_entrega", step=0.5)
-            
-            total_percent = perc_entrada + perc_mensal + perc_semestral + perc_entrega
-            st.slider("Total (%)", 0.0, 200.0, total_percent, disabled=True, key="total_percent")
 
-            if total_percent != 100.0:
-                st.warning(f"Atenção: A soma dos percentuais é {total_percent:.2f}%. Deve ser 100%.")
+        total_percent = st.session_state.total_percent
 
-        st.divider()
+        if total_percent > 100.0:
+            st.error(f"Percentual total excede 100%! (Total: {total_percent:.1f}%)")
+        elif total_percent < 100.0:
+            st.warning(f"Percentual não fecha 100%. (Total: {total_percent:.1f}%)")
+        else:
+            st.success(f"Percentual fechado em 100%!")
 
-        if st.button("Gerar Resumo", type="primary", use_container_width=True):
+    st.markdown("---")
+
+    val_entrada = (preco_total * perc_entrada) / 100
+    val_total_mensal = (preco_total * perc_mensal) / 100
+    val_total_semestral = (preco_total * perc_semestral) / 100
+    val_entrega = (preco_total * perc_entrega) / 100
+
+    val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
+    val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
+
+    st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Valores Calculados</span>", unsafe_allow_html=True)
+
+    calc_cols = st.columns(4)
+    calc_cols[0].metric("Valor Entrada", format_currency(val_entrada))
+    calc_cols[1].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x")
+    calc_cols[2].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
+    calc_cols[3].metric("Valor Entrega", format_currency(val_entrega))
+
+    st.markdown("---")
+
+    if st.button("Gerar Resumo", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+        if not unidade:
+            st.error("Por favor, preencha o nome da Unidade.")
             st.session_state.summary_text = ""
             st.session_state.data_to_save = None
-            
-            if not unidade:
-                st.error("Por favor, preencha o nome da Unidade / Sala.")
-            elif preco_total <= 0:
-                st.error("Por favor, preencha um Preço Total válido.")
-            elif total_percent != 100.0:
-                st.error(f"A soma dos percentuais deve ser 100% (atualmente: {total_percent:.2f}%).")
-            else:
-                valor_entrada = preco_total * (perc_entrada / 100)
-                total_mensal = preco_total * (perc_mensal / 100)
-                valor_mensal = total_mensal / num_mensal if num_mensal > 0 else 0
-                total_semestral = preco_total * (perc_semestral / 100)
-                valor_semestral = total_semestral / num_semestral if num_semestral > 0 else 0
-                valor_entrega = preco_total * (perc_entrega / 100)
+        elif preco_total <= 0:
+            st.error("Por favor, preencha o Preço Total.")
+            st.session_state.summary_text = ""
+            st.session_state.data_to_save = None
+        elif round(total_percent, 1) != 100.0:
+            st.error(f"O percentual total deve ser 100% para salvar (Atual: {total_percent:.1f}%).")
+            st.session_state.summary_text = ""
+            st.session_state.data_to_save = None
+        else:
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            summary = f"""
+Resumo da Simulação
+----------------------------------
+Obra:     {obra_selecionada}
+Unidade:  {unidade}
+Data:     {data_hora_atual}
+----------------------------------
+Preço Total:   {format_currency(preco_total)}
 
-                data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+Entrada:       {perc_entrada:.1f}%  | {format_currency(val_entrada)}
+Mensais:       {perc_mensal:.1f}%  | {num_mensal}x de {format_currency(val_por_mensal)} (Total: {format_currency(val_total_mensal)})
+Semestrais:    {perc_semestral:.1f}%  | {num_semestral}x de {format_currency(val_por_semestral)} (Total: {format_currency(val_total_semestral)})
+Entrega:       {perc_entrega:.1f}%  | {format_currency(val_entrega)}
+----------------------------------
+Total:         {total_percent:.1f}% | {format_currency(preco_total)}
+"""
+            st.session_state.summary_text = summary
 
-                st.session_state.data_to_save = [
-                    obra_selecionada,
-                    unidade,
-                    preco_total,
-                    perc_entrada,
-                    valor_entrada,
-                    perc_mensal,
-                    num_mensal,
-                    valor_mensal,
-                    perc_semestral,
-                    num_semestral,
-                    valor_semestral,
-                    perc_entrega,
-                    valor_entrega,
-                    data_hora
-                ]
-                
-                resumo = f"""
-                Resumo da Simulação
-                ---------------------------
-                Obra: {obra_selecionada}
-                Unidade: {unidade}
-                Preço Total: {format_currency(preco_total)}
-                Data/Hora: {data_hora}
-                
-                Fluxo de Pagamento:
-                - Entrada ({perc_entrada:.2f}%): {format_currency(valor_entrada)}
-                - Mensais ({perc_mensal:.2f}%): {format_currency(total_mensal)}
-                  ({num_mensal}x de {format_currency(valor_mensal)})
-                - Semestrais ({perc_semestral:.2f}%): {format_currency(total_semestral)}
-                  ({num_semestral}x de {format_currency(valor_semestral)})
-                - Entrega ({perc_entrega:.2f}%): {format_currency(valor_entrega)}
-                """
-                st.session_state.summary_text = resumo
+            st.session_state.data_to_save = [
+                obra_selecionada, unidade, preco_total,
+                perc_entrada, val_entrada,
+                perc_mensal, num_mensal, val_por_mensal,
+                perc_semestral, num_semestral, val_por_semestral,
+                perc_entrega, val_entrega,
+                data_hora_atual
+            ]
 
-        if st.session_state.summary_text:
-            st.text_area("Resumo Gerado", st.session_state.summary_text, height=300)
-            
-            if st.button("Salvar na Planilha", use_container_width=True):
-                sheet = get_worksheet()
-                if sheet and st.session_state.data_to_save:
-                    nova_linha = st.session_state.data_to_save
-                    
-                    try:
+    if st.session_state.summary_text:
+        st.markdown("##### Resumo Gerado")
+        st.text_area("Resumo para Copiar:", value=st.session_state.summary_text, height=300, key="summary_display", disabled=True)
+
+        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
+            with st.spinner("Conectando ao Google Sheets e salvando..."):
+                try:
+                    sheet = get_worksheet()
+                    if sheet and st.session_state.data_to_save:
+                        nova_linha = st.session_state.data_to_save
+                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
                         st.success("Simulação salva com sucesso na planilha!")
                         st.balloons()
-                        
-                        reset_to_default_values()
-                        
+
+                        st.session_state.summary_text = ""
+                        st.session_state.data_to_save = None
+
                         st.cache_data.clear() 
+                        st.cache_resource.clear()
+                        time.sleep(1)
                         st.rerun()
-                        
-                    except Exception as e:
-                        st.error(f"Erro ao salvar na planilha: {e}")
-                else:
-                    st.error("Não foi possível conectar à planilha ou não há dados para salvar.")
+                    elif not st.session_state.data_to_save:
+                         st.error("Erro: Dados do resumo perdidos. Tente gerar novamente.")
+                    else:
+                        st.error("Falha ao salvar: Não foi possível conectar à planilha.")
+                except Exception as e:
+                    st.error(f"Falha ao salvar na planilha: {e}")
 
 
-    with tab2:
-        st.markdown(f"### Simulações Salvas", unsafe_allow_html=True)
+with tab2:
+    st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
 
-        df = carregar_dados_planilha()
+    df = carregar_dados_planilha()
 
-        if df.empty:
-            sheet_check = get_worksheet()
-            if sheet_check is None:
-                st.error("Falha ao carregar dados: conexão com planilha indisponível.")
-            else:
-                st.info("Nenhuma simulação salva ainda.")
-        else:
-            df = df.sort_index(ascending=False)
-            df['row_index'] = [i + 2 for i in df.index] 
+    if df is not None and not df.empty:
+        df = df.sort_values(by="Data/Hora", ascending=False)
 
-            for index, row in df.iterrows():
-                try:
-                    row_index = row['row_index']
-                    
-                    preco_total_val = float(row.get('Preco Total', 0))
-                    entrada_val = float(row.get('Valor Entrada', 0))
-                    
-                    with st.container(border=True):
-                        st.markdown(f"**{row.get('Obra', 'N/A')} - Unidade {row.get('Unidade', 'N/A')}**")
-                        st.caption(f"Salvo em: {row.get('Data/Hora', 'N/A')}")
-                        
-                        card_c1, card_c2 = st.columns(2)
-                        with card_c1:
-                            st.metric("Preço Total", format_currency(preco_total_val))
-                        with card_c2:
-                            st.metric("Entrada", format_currency(entrada_val))
+        sheet = get_worksheet()
 
-                        with st.expander("Ver Resumo, Gráfico ou Excluir"):
-                            
-                            tab_resumo, tab_editar = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
+        for index, row in df.iterrows():
 
-                            with tab_resumo:
+            try:
+                preco_total_num = float(row.get('Preco Total', 0))
+                val_entrada_num = float(row.get('Valor Entrada', 0))
+                val_mensal_num = float(row.get('Valor Mensal', 0))
+                num_mensal_num = int(row.get('Nº Mensal', 0))
+                val_semestral_num = float(row.get('Valor Semestral', 0))
+                num_semestral_num = int(row.get('Nº Semestral', 0))
+                val_entrega_num = float(row.get('Valor Entrega', 0))
+
+                total_mensal = val_mensal_num * num_mensal_num
+                total_semestral = val_semestral_num * num_semestral_num
+
+            except (ValueError, TypeError) as e:
+                st.error(f"Erro ao processar dados da linha {index} (Unidade: {row.get('Unidade', 'N/A')}). Verifique a planilha. Erro: {e}")
+                continue
+
+            with st.container(border=True):
+                st.markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
+                cols_header = st.columns(2)
+                cols_header[0].metric("Preço Total", format_currency(preco_total_num))
+                cols_header[1].metric("Entrada", format_currency(val_entrada_num))
+
+                with st.expander("Ver Detalhes, Gráfico ou Ações"):
+
+                    tab_resumo, tab_acoes = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
+
+                    with tab_resumo:
+                        detail_cols = st.columns(2)
+                        detail_cols[0].metric(
+                            label="Valor Mensal", 
+                            value=format_currency(val_mensal_num), 
+                            delta=f"{num_mensal_num}x"
+                        )
+                        detail_cols[1].metric("Total em Mensais", format_currency(total_mensal))
+
+                        detail_cols2 = st.columns(2)
+                        detail_cols2[0].metric(
+                            label="Valor Semestral", 
+                            value=format_currency(val_semestral_num), 
+                            delta=f"{num_semestral_num}x"
+                        )
+                        detail_cols2[1].metric("Total em Semestrais", format_currency(total_semestral))
+
+                        st.metric("Entrega", format_currency(val_entrega_num))
+
+                        try:
+                            chart_data = pd.DataFrame({
+                                'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
+                                'Valor': [val_entrada_num, total_mensal, total_semestral, val_entrega_num]
+                            })
+                            chart_data = chart_data[chart_data['Valor'] > 0]
+
+                            color_scheme = [st.get_option('theme.primaryColor'), '#FFA500', '#FFC04D', '#808080']
+
+                            if not chart_data.empty:
+                                pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=120, innerRadius=80).encode(
+                                    theta=alt.Theta("Valor:Q", stack=True),
+                                    color=alt.Color("Tipo:N", 
+                                                    title="Tipo de Pagamento", 
+                                                    scale=alt.Scale(domain=['Entrada', 'Mensais', 'Semestrais', 'Entrega'], 
+                                                                    range=color_scheme)),
+                                    tooltip=['Tipo', 'Valor', alt.Tooltip("Valor:Q", format=".1%", title="% do Total")]
+                                ).properties(
+                                    title="Composição do Valor Total"
+                                )
+                                st.altair_chart(pie_chart, use_container_width=True)
+                            else:
+                                st.info("Não há dados de valor para exibir o gráfico.")
+                        except Exception as e:
+                            st.error(f"Não foi possível gerar o gráfico. {e}")
+
+                    with tab_acoes:
+                        st.markdown("##### Ações")
+
+                        edit_key = f"edit_{index}_{row['Unidade']}"
+                        if st.button("Editar Simulação", key=edit_key):
+                            if sheet:
                                 try:
-                                    val_mensal = float(row.get('Valor Mensal', 0))
-                                    num_mensal = int(row.get('Nº Mensal', 0))
-                                    total_mensal = val_mensal * num_mensal
-                                    
-                                    val_semestral = float(row.get('Valor Semestral', 0))
-                                    num_semestral = int(row.get('Nº Semestral', 0))
-                                    total_semestral = val_semestral * num_semestral
-                                    
-                                    val_entrega = float(row.get('Valor Entrega', 0))
-                                    
-                                    res_c1, res_c2 = st.columns(2)
-                                    with res_c1:
-                                        st.metric(
-                                            label="Parcelas Mensais",
-                                            value=format_currency(val_mensal),
-                                            delta=f"{num_mensal}x"
-                                        )
-                                        st.metric(
-                                            label="Parcelas Semestrais",
-                                            value=format_currency(val_semestral),
-                                            delta=f"{num_semestral}x"
-                                        )
-                                    with res_c2:
-                                        st.metric("Total (Mensais)", format_currency(total_mensal))
-                                        st.metric("Total (Semestrais)", format_currency(total_semestral))
-                                    
-                                    st.metric("Valor da Entrega", format_currency(val_entrega))
-                                    
-                                    chart_data = pd.DataFrame({
-                                        'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
-                                        'Valor': [entrada_val, total_mensal, total_semestral, val_entrega]
-                                    })
-                                    chart_data = chart_data[chart_data['Valor'] > 0]
-                                    
-                                    pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=120).encode(
-                                        theta=alt.Theta("Valor:Q", stack=True),
-                                        color=alt.Color("Tipo:N", 
-                                            scale=alt.Scale(
-                                                domain=chart_data['Tipo'].tolist(),
-                                                range=['#E37026', '#FFA500', '#FFC04D', '#FFDAB9']
-                                            )
-                                        ),
-                                        tooltip=['Tipo', 'Valor']
-                                    ).properties(
-                                        title="Composição do Valor"
-                                    )
-                                    st.altair_chart(pie_chart, use_container_width=True)
+                                    cell = sheet.find(row['Data/Hora'])
+                                    if cell:
+                                        edit_dialog(row.to_dict(), sheet, cell.row)
+                                    else:
+                                        st.error("Não foi possível encontrar a linha para editar. Tente recarregar.")
+                                except Exception as e:
+                                    st.error(f"Erro ao tentar editar: {e}")
+                            else:
+                                st.error("Não foi possível editar: conexão com planilha perdida.")
 
-                                except (ValueError, TypeError) as e:
-                                    st.error(f"Erro ao processar valores para o resumo: {e}")
+                        st.markdown("---") 
 
-                            with tab_editar:
-                                st.markdown("##### Ações")
-                                
-                                if st.button("Editar Simulação", key=f"edit_{row_index}"):
-                                    edit_dialog(row.to_dict(), row_index, get_worksheet())
-                                
-                                if st.button("Excluir Simulação", type="primary", key=f"del_{row_index}"):
-                                    sheet = get_worksheet()
-                                    if sheet:
-                                        sheet.delete_rows(row_index)
-                                        st.success(f"Simulação da unidade {row.get('Unidade')} excluída.")
+                        delete_key = f"delete_{index}_{row['Unidade']}"
+                        if st.button("Excluir Simulação", key=delete_key, type="primary"):
+                            if sheet:
+                                try:
+                                    cell = sheet.find(row['Data/Hora'])
+                                    if cell:
+                                        sheet.delete_rows(cell.row)
+                                        st.success(f"Simulação da Unidade '{row['Unidade']}' excluída.")
                                         st.cache_data.clear()
+                                        st.cache_resource.clear()
+                                        time.sleep(1)
                                         st.rerun()
                                     else:
-                                        st.error("Não foi possível conectar à planilha para excluir.")
+                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarVregar.")
+                                except Exception as e:
+                                    st.error(f"Erro ao excluir linha: {e}")
+                            else:
+                                st.error("Não foi possível excluir: conexão com planilha perdida.")
 
-                except Exception as e:
-                    st.error(f"Erro ao renderizar card da simulação: {e}")
-                    st.write(row)
-
-if __name__ == "__main__":
-    main()
+    else:
+        st.info("Nenhuma simulação salva para exibir.")
