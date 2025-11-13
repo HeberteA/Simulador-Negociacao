@@ -16,7 +16,7 @@ st.set_page_config(
 background_texture_css = """
 <style>
 [data-testid="stAppViewContainer"] {
-    /* Opção: Linho Preto (Sutil e Elegante) */
+    /* Opção: Papel Artesanal (Sutil e Elegante) */
     background-image: url("https://www.transparenttextures.com/patterns/handmade-paper.png");
     background-repeat: repeat;
 }
@@ -91,6 +91,55 @@ def carregar_dados_planilha():
         st.error(f"Erro ao carregar dados da planilha: {e}")
         return pd.DataFrame()
 
+def set_default_values():
+    defaults = {
+        "main_unidade": "101",
+        "main_preco_total": 500000.0,
+        "main_num_mensal": 36,
+        "main_num_semestral": 6,
+        "perc_entrada": 20.0,
+        "perc_mensal": 40.0,
+        "perc_semestral": 20.0,
+        "perc_entrega": 20.0,
+    }
+    
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+
+    if "total_percent" not in st.session_state:
+        st.session_state.total_percent = (
+            defaults["perc_entrada"] +
+            defaults["perc_mensal"] +
+            defaults["perc_semestral"] +
+            defaults["perc_entrega"]
+        )
+
+def reset_to_default_values():
+    defaults = {
+        "main_unidade": "101",
+        "main_preco_total": 500000.0,
+        "main_num_mensal": 36,
+        "main_num_semestral": 6,
+        "perc_entrada": 20.0,
+        "perc_mensal": 40.0,
+        "perc_semestral": 20.0,
+        "perc_entrega": 20.0,
+    }
+    
+    for key, value in defaults.items():
+        st.session_state[key] = value
+
+    st.session_state.total_percent = (
+        defaults["perc_entrada"] +
+        defaults["perc_mensal"] +
+        defaults["perc_semestral"] +
+        defaults["perc_entrega"]
+    )
+    
+    st.session_state.summary_text = ""
+    st.session_state.data_to_save = None
+
 
 @st.dialog("Editar Simulação")
 def edit_dialog(row_data, sheet, sheet_row_index):
@@ -155,7 +204,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         )
         perc_entrega = st.number_input(
             "Entrega (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Semestral', 0)), 
+            value=float(row_data.get('% Entrega', 0)), 
             step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
         )
 
@@ -214,11 +263,12 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             del st.session_state[k]
         return True
 
+set_default_values()
 
 try:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("LavieC.png", width=500)
+        st.image("LavieC.png", width=750)
 except FileNotFoundError:
     st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
@@ -258,7 +308,7 @@ with tab1:
     with form_cols[0]:
         st.markdown("##### Dados da Simulação")
         unidade = st.text_input("Unidade / Sala", key="main_unidade")
-        preco_total = st.number_input("Preço Total da Unidade (R$)", min_value=0.0, step=1000.0, key="main_preco_total")
+        preco_total = st.number_input("Preço Total da Unidade (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
 
         st.markdown("##### Nº de Parcelas")
         num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
@@ -372,8 +422,8 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
                         st.success("Simulação salva com sucesso na planilha!")
                         st.balloons()
 
-                        st.session_state.summary_text = ""
-                        st.session_state.data_to_save = None
+                        # --- APLICA O RESET PARA VALORES CORINGA ---
+                        reset_to_default_values()
 
                         st.cache_data.clear() 
                         st.cache_resource.clear()
@@ -502,7 +552,7 @@ with tab2:
                                         time.sleep(1)
                                         st.rerun()
                                     else:
-                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarVregar.")
+                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarregar.")
                                 except Exception as e:
                                     st.error(f"Erro ao excluir linha: {e}")
                             else:
