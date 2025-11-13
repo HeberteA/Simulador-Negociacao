@@ -17,7 +17,8 @@ background_texture_css = """
 <style>
 [data-testid="stAppViewContainer"] {
     /* Opção: Linho Preto (Sutil e Elegante) */
-    background-image: url("https://www.transparenttextures.com/patterns/cartographer.png");
+    background-color: #424242;
+    background-image: url("https://www.transparenttextures.com/patterns/diagmonds.png");
     background-repeat: repeat;
 }
 </style>
