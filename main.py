@@ -16,7 +16,7 @@ st.set_page_config(
 background_texture_css = """
 <style>
 [data-testid="stAppViewContainer"] {
-    background-image: url("https://www.transparenttextures.com/patterns/black-linen-2.png");
+    background-image: url("https://www.transparenttextures.com/patterns/dark-dotted-2.png");
     background-repeat: repeat;
 }
 </style>
