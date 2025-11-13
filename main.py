@@ -106,7 +106,6 @@ def set_default_values():
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
-
     if "total_percent" not in st.session_state:
         st.session_state.total_percent = (
             defaults["perc_entrada"] +
@@ -116,29 +115,17 @@ def set_default_values():
         )
 
 def reset_to_default_values():
-    defaults = {
-        "main_unidade": "101",
-        "main_preco_total": 500000.0,
-        "main_num_mensal": 36,
-        "main_num_semestral": 6,
-        "perc_entrada": 20.0,
-        "perc_mensal": 40.0,
-        "perc_semestral": 20.0,
-        "perc_entrega": 20.0,
-    }
+    keys_to_clear = [
+        "main_unidade", "main_preco_total", "main_num_mensal", "main_num_semestral",
+        "perc_entrada", "perc_mensal", "perc_semestral", "perc_entrega",
+        "total_percent", "summary_text", "data_to_save"
+    ]
     
-    for key, value in defaults.items():
-        st.session_state[key] = value
+    for key in keys_to_clear:
+        if key in st.session_state:
+            del st.session_state[key]
+    
 
-    st.session_state.total_percent = (
-        defaults["perc_entrada"] +
-        defaults["perc_mensal"] +
-        defaults["perc_semestral"] +
-        defaults["perc_entrega"]
-    )
-    
-    st.session_state.summary_text = ""
-    st.session_state.data_to_save = None
 
 
 @st.dialog("Editar Simulação")
@@ -262,13 +249,13 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         for k in keys_to_delete:
             del st.session_state[k]
         return True
-
+        
 set_default_values()
 
 try:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("LavieC.png", width=750)
+        st.image("LavieC.png", width=500)
 except FileNotFoundError:
     st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
@@ -356,11 +343,14 @@ with tab1:
 
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Valores Calculados</span>", unsafe_allow_html=True)
 
-    calc_cols = st.columns(4)
-    calc_cols[0].metric("Valor Entrada", format_currency(val_entrada))
-    calc_cols[1].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x")
-    calc_cols[2].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
-    calc_cols[3].metric("Valor Entrega", format_currency(val_entrega))
+    calc_cols_1 = st.columns(2)
+    calc_cols_1[0].metric("Valor Entrada", format_currency(val_entrada))
+    calc_cols_1[1].metric("Valor Entrega", format_currency(val_entrega))
+    
+    calc_cols_2 = st.columns(2)
+    calc_cols_2[0].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x")
+    calc_cols_2[1].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
+
 
     st.markdown("---")
 
@@ -378,7 +368,7 @@ with tab1:
             st.session_state.summary_text = ""
             st.session_state.data_to_save = None
         else:
-            data_hora_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
             summary = f"""
 Resumo da Simulação
 ----------------------------------
@@ -422,13 +412,12 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
                         st.success("Simulação salva com sucesso na planilha!")
                         st.balloons()
 
-                        # --- APLICA O RESET PARA VALORES CORINGA ---
-                        reset_to_default_values()
+                        reset_to_default_values() 
 
                         st.cache_data.clear() 
                         st.cache_resource.clear()
                         time.sleep(1)
-                        st.rerun()
+                        st.rerun() 
                     elif not st.session_state.data_to_save:
                          st.error("Erro: Dados do resumo perdidos. Tente gerar novamente.")
                     else:
