@@ -24,6 +24,7 @@ background_texture_css = """
 </style>
 """
 st.markdown(background_texture_css, unsafe_allow_html=True)
+
 def format_currency(value):
     if value is None:
         return "R$ 0,00"
@@ -218,7 +219,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
 try:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("Lavie.png", width=400)
+        st.image("Lavie.png", width=500)
 except FileNotFoundError:
     st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
