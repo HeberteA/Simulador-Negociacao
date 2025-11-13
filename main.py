@@ -13,6 +13,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+background_texture_css = """
+<style>
+[data-testid="stAppViewContainer"] {
+    background-image: url("https://www.transparenttextures.com/patterns/dark-denim-3.png");
+    background-repeat: repeat;
+}
+</style>
+"""
+st.markdown(background_texture_css, unsafe_allow_html=True)
+
 def format_currency(value):
     if value is None:
         return "R$ 0,00"
