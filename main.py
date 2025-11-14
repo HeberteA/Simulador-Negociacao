@@ -253,9 +253,9 @@ def edit_dialog(row_data, sheet, sheet_row_index):
 set_default_values()
 
 try:
-    col1, col2, col3 = st.columns([1, 2, 1])
+    col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
-        st.image("LavieC.png", width=500)
+        st.image("LavieC.png", width=750)
 except FileNotFoundError:
     st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
