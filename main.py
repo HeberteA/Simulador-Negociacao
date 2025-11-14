@@ -84,7 +84,10 @@ def carregar_dados_planilha():
 
         for col in cols_para_converter:
             if col in df.columns:
-                df[col] = pd.to_numeric(df[col].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
+                df[col] = pd.to_numeric(
+                    df[col].astype(str).str.replace('.', '', regex=False).str.replace(',', '.', regex=False),
+                    errors='coerce'
+                ).fillna(0)
 
         return df
     except Exception as e:
@@ -102,10 +105,11 @@ def set_default_values():
         "perc_semestral": 20.0,
         "perc_entrega": 20.0,
     }
-
+    
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
     if "total_percent" not in st.session_state:
         st.session_state.total_percent = (
             defaults["perc_entrada"] +
@@ -120,12 +124,10 @@ def reset_to_default_values():
         "perc_entrada", "perc_mensal", "perc_semestral", "perc_entrega",
         "total_percent", "summary_text", "data_to_save"
     ]
-
+    
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
-
-
 
 
 @st.dialog("Editar Simulação")
