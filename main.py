@@ -9,9 +9,20 @@ import time
 st.set_page_config(
     page_title="Simulador de Negociação",
     page_icon="Lavie1.png",
-    layout="wide",  
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
+
+background_texture_css = """
+<style>
+[data-testid="stAppViewContainer"] {
+    /* Opção: Papel Artesanal (Sutil e Elegante) */
+    background-image: url("https://www.transparenttextures.com/patterns/handmade-paper.png");
+    background-repeat: repeat;
+}
+</style>
+"""
+st.markdown(background_texture_css, unsafe_allow_html=True)
 
 def format_currency(value):
     if value is None:
@@ -91,7 +102,7 @@ def set_default_values():
         "perc_semestral": 20.0,
         "perc_entrega": 20.0,
     }
-    
+
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
@@ -109,11 +120,11 @@ def reset_to_default_values():
         "perc_entrada", "perc_mensal", "perc_semestral", "perc_entrega",
         "total_percent", "summary_text", "data_to_save"
     ]
-    
+
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
-    
+
 
 
 
@@ -192,7 +203,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         else:
             st.success(f"Percentual fechado em 100%!")
 
-    st.divider() 
+    st.markdown("---")
 
     if st.button("Salvar Alterações", type="primary", use_container_width=True):
         if round(total_percent, 1) != 100.0:
@@ -238,21 +249,21 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         for k in keys_to_delete:
             del st.session_state[k]
         return True
-        
+
 set_default_values()
 
 try:
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
-        st.image("Lavie.png", use_container_width=True) 
+        st.image("LavieC.png", width=750)
 except FileNotFoundError:
-    st.warning("Arquivo 'Lavie.png' não encontrado. Coloque-o na mesma pasta do app.py.")
+    st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
     st.error(f"Não foi possível carregar a imagem: {e}")
 
 
 st.title("Simulador de Negociação")
-st.divider() 
+st.markdown("---")
 
 lista_obras = [
     "Burj Lavie",
@@ -320,7 +331,7 @@ with tab1:
         else:
             st.success(f"Percentual fechado em 100%!")
 
-    st.divider() 
+    st.markdown("---")
 
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
@@ -335,13 +346,13 @@ with tab1:
     calc_cols_1 = st.columns(2)
     calc_cols_1[0].metric("Valor Entrada", format_currency(val_entrada))
     calc_cols_1[1].metric("Valor Entrega", format_currency(val_entrega))
-    
+
     calc_cols_2 = st.columns(2)
     calc_cols_2[0].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x")
     calc_cols_2[1].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
 
 
-    st.divider()
+    st.markdown("---")
 
     if st.button("Gerar Resumo", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         if not unidade:
@@ -515,7 +526,7 @@ with tab2:
                             else:
                                 st.error("Não foi possível editar: conexão com planilha perdida.")
 
-                        st.divider()
+                        st.markdown("---") 
 
                         delete_key = f"delete_{index}_{row['Unidade']}"
                         if st.button("Excluir Simulação", key=delete_key, type="primary"):
