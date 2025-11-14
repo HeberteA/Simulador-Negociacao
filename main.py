@@ -9,20 +9,9 @@ import time
 st.set_page_config(
     page_title="Simulador de Negociação",
     page_icon="Lavie1.png",
-    layout="centered",
+    layout="wide",  
     initial_sidebar_state="collapsed"
 )
-
-background_texture_css = """
-<style>
-[data-testid="stAppViewContainer"] {
-    /* Opção: Papel Artesanal (Sutil e Elegante) */
-    background-image: url("https://www.transparenttextures.com/patterns/handmade-paper.png");
-    background-repeat: repeat;
-}
-</style>
-"""
-st.markdown(background_texture_css, unsafe_allow_html=True)
 
 def format_currency(value):
     if value is None:
@@ -203,7 +192,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         else:
             st.success(f"Percentual fechado em 100%!")
 
-    st.markdown("---")
+    st.divider() 
 
     if st.button("Salvar Alterações", type="primary", use_container_width=True):
         if round(total_percent, 1) != 100.0:
@@ -255,15 +244,15 @@ set_default_values()
 try:
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
-        st.image("LavieC.png", width=750)
+        st.image("Lavie.png", use_container_width=True) 
 except FileNotFoundError:
-    st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
+    st.warning("Arquivo 'Lavie.png' não encontrado. Coloque-o na mesma pasta do app.py.")
 except Exception as e:
     st.error(f"Não foi possível carregar a imagem: {e}")
 
 
 st.title("Simulador de Negociação")
-st.markdown("---")
+st.divider() 
 
 lista_obras = [
     "Burj Lavie",
@@ -331,7 +320,7 @@ with tab1:
         else:
             st.success(f"Percentual fechado em 100%!")
 
-    st.markdown("---")
+    st.divider() 
 
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
@@ -352,7 +341,7 @@ with tab1:
     calc_cols_2[1].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
 
 
-    st.markdown("---")
+    st.divider()
 
     if st.button("Gerar Resumo", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         if not unidade:
@@ -526,7 +515,7 @@ with tab2:
                             else:
                                 st.error("Não foi possível editar: conexão com planilha perdida.")
 
-                        st.markdown("---") 
+                        st.divider()
 
                         delete_key = f"delete_{index}_{row['Unidade']}"
                         if st.button("Excluir Simulação", key=delete_key, type="primary"):
