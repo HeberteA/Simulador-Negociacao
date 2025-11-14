@@ -412,7 +412,6 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
 
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
                         st.success("Simulação salva com sucesso na planilha!")
-                        st.balloons()
 
                         reset_to_default_values() 
 
