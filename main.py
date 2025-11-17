@@ -76,7 +76,7 @@ def carregar_dados_planilha():
         data = sheet.get_all_values() 
         
         if not data or len(data) < 2: 
-            st.warning("Nenhuma simulação encontrada na planilha.")
+            
             return pd.DataFrame()
 
         df = pd.DataFrame(data[1:], columns=data[0])
