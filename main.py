@@ -348,13 +348,13 @@ with tab1:
 
     st.markdown("---")
 
-    val_entrada = (preco_total * perc_entrada) / 100
-    val_total_mensal = (preco_total * perc_mensal) / 100
-    val_total_semestral = (preco_total * perc_semestral) / 100
-    val_entrega = (preco_total * perc_entrega) / 100
+    val_entrada = round((preco_total * perc_entrada) / 100, 2)
+    val_total_mensal = round((preco_total * perc_mensal) / 100, 2)
+    val_total_semestral = round((preco_total * perc_semestral) / 100, 2)
+    val_entrega = round((preco_total * perc_entrega) / 100, 2)
 
-    val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
-    val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
+    val_por_mensal = round((val_total_mensal / num_mensal), 2) if num_mensal > 0 else 0
+    val_por_semestral = round((val_total_semestral / num_semestral), 2) if num_semestral > 0 else 0
 
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Valores Calculados</span>", unsafe_allow_html=True)
 
@@ -403,11 +403,19 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
             st.session_state.summary_text = summary
 
             st.session_state.data_to_save = [
-                obra_selecionada, unidade, preco_total,
-                perc_entrada, val_entrada,
-                perc_mensal, num_mensal, val_por_mensal,
-                perc_semestral, num_semestral, val_por_semestral,
-                perc_entrega, val_entrega,
+                obra_selecionada, 
+                unidade, 
+                to_sheet_string(preco_total),
+                to_sheet_string(perc_entrada), 
+                to_sheet_string(val_entrada),
+                to_sheet_string(perc_mensal), 
+                num_mensal, # Inteiro
+                to_sheet_string(val_por_mensal),
+                to_sheet_string(perc_semestral), 
+                num_semestral, # Inteiro
+                to_sheet_string(val_por_semestral),
+                to_sheet_string(perc_entrega), 
+                to_sheet_string(val_entrega),
                 data_hora_atual
             ]
 
@@ -467,7 +475,6 @@ with tab2:
             except (ValueError, TypeError) as e:
                 st.error(f"Erro ao processar dados da linha {index} (Unidade: {row.get('Unidade', 'N/A')}). Verifique a planilha. Erro: {e}")
                 continue
-
             with st.container(border=True):
                 st.markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
                 cols_header = st.columns(2)
