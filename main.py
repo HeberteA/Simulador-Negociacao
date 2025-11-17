@@ -33,7 +33,7 @@ def to_sheet_string(value):
     """Converte um float (ex: 5555.56) para uma string PT-BR (ex: "5555,56")"""
     return f"{value:.2f}".replace('.', ',')
     
-@st.cache_resource(ttl=3600)
+@st.cache_resource(ttl=60)
 def get_worksheet():
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -65,7 +65,7 @@ def get_worksheet():
         st.error(f"Erro ao autenticar ou abrir a planilha: {e}")
         return None
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def carregar_dados_planilha():
     try:
         sheet = get_worksheet()
@@ -73,12 +73,13 @@ def carregar_dados_planilha():
             st.error("Falha ao carregar dados: conexão com planilha indisponível.")
             return pd.DataFrame()
 
-        data = sheet.get_all_records()
-        if not data:
+        data = sheet.get_all_values() 
+        
+        if not data or len(data) < 2: 
             st.warning("Nenhuma simulação encontrada na planilha.")
             return pd.DataFrame()
 
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(data[1:], columns=data[0])
 
         cols_para_converter = [
             'Preco Total', 'Valor Entrada', 'Valor Mensal', 'Valor Semestral', 'Valor Entrega',
@@ -93,11 +94,11 @@ def carregar_dados_planilha():
                     errors='coerce'
                 ).fillna(0)
 
-
         return df
     except Exception as e:
         st.error(f"Erro ao carregar dados da planilha: {e}")
         return pd.DataFrame()
+
 
 def set_default_values():
     defaults = {
