@@ -29,6 +29,10 @@ def format_currency(value):
         return "R$ 0,00"
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+def to_sheet_string(value):
+    """Converte um float (ex: 5555.56) para uma string PT-BR (ex: "5555,56")"""
+    return f"{value:.2f}".replace('.', ',')
+    
 @st.cache_resource(ttl=3600)
 def get_worksheet():
     scopes = [
@@ -88,6 +92,7 @@ def carregar_dados_planilha():
                     df[col].astype(str).str.replace('.', '', regex=False).str.replace(',', '.', regex=False),
                     errors='coerce'
                 ).fillna(0)
+
 
         return df
     except Exception as e:
@@ -220,11 +225,19 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
             linha_atualizada = [
-                row_data['Obra'], row_data['Unidade'], preco_total,
-                perc_entrada, val_entrada,
-                perc_mensal, num_mensal, val_por_mensal,
-                perc_semestral, num_semestral, val_por_semestral,
-                perc_entrega, val_entrega,
+                row_data['Obra'], 
+                row_data['Unidade'], 
+                to_sheet_string(preco_total),
+                to_sheet_string(perc_entrada), 
+                to_sheet_string(val_entrada),
+                to_sheet_string(perc_mensal), 
+                num_mensal,
+                to_sheet_string(val_por_mensal),
+                to_sheet_string(perc_semestral), 
+                num_semestral, 
+                to_sheet_string(val_por_semestral),
+                to_sheet_string(perc_entrega), 
+                to_sheet_string(val_entrega),
                 row_data['Data/Hora']
             ]
 
