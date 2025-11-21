@@ -346,7 +346,7 @@ with tab1:
         color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
         icon_st = "check_circle" if total_percent == 100 else "warning"
         st.markdown(f"""
-        <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
             <div style="display:flex; align-items:center; color: {color_st}; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;">
                 <span class="material-symbols-rounded" style="font-size:18px; margin-right:6px;">{icon_st}</span>
@@ -354,7 +354,6 @@ with tab1:
             </div>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
 
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
