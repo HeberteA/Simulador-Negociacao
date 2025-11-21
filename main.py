@@ -417,8 +417,8 @@ Data: {dt}
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_text")
-        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300)
+        if st.button("Salvar na Planilha", use_container_width=True):
             with st.spinner("Salvando..."):
                 try:
                     sheet = get_worksheet()
