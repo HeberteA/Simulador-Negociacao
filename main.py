@@ -411,8 +411,7 @@ Data: {dt}
                 to_sheet_string(perc_entrada), to_sheet_string(val_entrada),
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
-                to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
-                data_hora_atual
+                to_sheet_string(perc_entrega), to_sheet_string(val_entrega), datetime.now().strftime("%Y-%m-%d")
             ]
 
     if st.session_state.get("summary_text"):
@@ -429,7 +428,6 @@ Data: {dt}
                         st.toast("Salvo!", icon="✅"); carregar_dados_planilha.clear()
                         reset_to_default_values(); time.sleep(1); st.rerun()
                 except Exception as e: st.error(f"Erro: {e}")
-
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
     df = carregar_dados_planilha()
