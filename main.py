@@ -24,18 +24,31 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* --- CORREÇÃO 1: GRADIENTE NOS CONTAINERS DOS INPUTS --- */
+/* --- AQUI ESTA A CORREÇÃO DO GRADIENTE --- */
+/* Aplica o visual Lavie Premium nos containers nativos do Streamlit */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* O mesmo gradiente do Card de Resultado */
+    /* O mesmo gradiente exato do Card de Resultado */
     background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%) !important;
+    
+    /* Borda sutil igual ao card de baixo */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    
+    /* Arredondamento e Sombra */
     border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    
     padding: 24px !important;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important;
     margin-bottom: 20px;
 }
 
-/* Correção do Resumo (Text Area) */
+/* Garante que o conteudo dentro do container tenha espaçamento */
+div[data-testid="stVerticalBlockBorderWrapper"] > div {
+    gap: 1rem;
+}
+
+/* --- RESTANTE DO CSS (Inputs, Texto, etc) --- */
+
+/* Resumo (Text Area) */
 div[data-baseweb="textarea"] > div {
     height: auto !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
@@ -62,7 +75,7 @@ label[data-testid="stLabel"] {
     margin-bottom: 6px;
 }
 
-/* Headers e Ícones */
+/* Headers */
 .section-header { display: flex; align-items: center; margin-bottom: 15px; }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
@@ -71,7 +84,7 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO */
+/* CARD DE RESULTADO (HTML Customizado) */
 .lavie-card {
     background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
