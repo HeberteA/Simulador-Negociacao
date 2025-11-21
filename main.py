@@ -410,12 +410,13 @@ Data: {dt}
                 to_sheet_string(perc_entrada), to_sheet_string(val_entrada),
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
-                to_sheet_string(perc_entrega), to_sheet_string(val_entrega), dt
+                to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
+                data_hora_atual
             ]
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_text")
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Salvando..."):
                 try:
