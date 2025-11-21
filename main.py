@@ -18,36 +18,36 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
-/* Fundo Geral do App */
+/* Fundo Geral */
 [data-testid="stAppViewContainer"] {
     background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
 
-/* --- AQUI ESTA A CORREÇÃO DEFINITIVA DO GRADIENTE --- */
-/* Alvo: st.container(border=True) */
+/* --- O SEGREDO DO GRADIENTE NOS INPUTS --- */
+
+/* 1. Aplica o gradiente no Wrapper (A caixa de fora) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* Força o gradiente EXATAMENTE igual ao .lavie-card */
+    background-color: transparent !important; /* Remove cor sólida padrão */
+    
+    /* O GRADIENTE LAVIE */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    /* Borda fina e elegante */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    
-    /* Sombra e Arredondamento */
     border-radius: 16px !important;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
-    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
     padding: 24px !important;
-    margin-bottom: 24px !important;
+    margin-bottom: 20px !important;
 }
 
-/* Remove qualquer fundo dos filhos diretos para o gradiente brilhar */
+/* 2. FORÇA BRUTA: Torna transparente a caixa de dentro (stVerticalBlock) */
+/* Se isso não for feito, o Streamlit pinta um fundo cinza por cima do gradiente */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
     background-color: transparent !important;
 }
 
-/* --- Inputs --- */
+/* Inputs */
 div[data-baseweb="input"] > div, 
 div[data-baseweb="select"] > div, 
 div[data-baseweb="base-input"] {
@@ -58,23 +58,20 @@ div[data-baseweb="base-input"] {
     height: 48px;
 }
 
-/* Resumo (Textarea) - Altura automática */
+/* Text Area (Resumo) */
 div[data-baseweb="textarea"] > div {
-    height: auto !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 8px !important;
     color: white !important;
 }
 
-/* Cores dos Textos dos Inputs */
+/* Texto dos Inputs */
 div[data-testid="stNumberInput"] input, 
 div[data-testid="stTextInput"] input {
     color: white !important;
     font-family: 'Inter', sans-serif;
 }
-
-/* Labels */
 label[data-testid="stLabel"] {
     color: rgba(255, 255, 255, 0.6) !important;
     font-size: 0.85rem !important;
@@ -90,9 +87,8 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (HTML Manual) */
+/* CARD DE RESULTADO (HTML - Já estava certo) */
 .lavie-card {
-    /* Mesmo gradiente para manter consistência */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
@@ -365,63 +361,48 @@ with tab1:
     val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
     val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    render_header("analytics", "Resultado Financeiro")
     f_ent = format_currency(val_entrada)
     f_men = format_currency(val_por_mensal)
-    f_t_men = format_currency(val_total_mensal)
+    f_tot_men = format_currency(val_total_mensal)
     f_sem = format_currency(val_por_semestral)
-    f_t_sem = format_currency(val_total_semestral)
+    f_tot_sem = format_currency(val_total_semestral)
     f_entg = format_currency(val_entrega)
+    f_preco = format_currency(preco_total)
 
+    st.markdown("<br>", unsafe_allow_html=True)
+    render_header("analytics", "Resultado Financeiro")
+    
     card_html = f"""
     <div class="lavie-card">
-    <div class="stats-grid">
-    <div class="stat-item">
-        <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
-        <span class="stat-value highlight">{f_ent}</span>
-        <span class="stat-sub">Pagamento Ato</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Mensais ({num_mensal}x)</span>
-        <span class="stat-value">{f_men}</span>
-        <span class="stat-sub">Total: {f_t_men}</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Semestrais ({num_semestral}x)</span>
-        <span class="stat-value">{f_sem}</span>
-        <span class="stat-sub">Total: {f_t_sem}</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
-        <span class="stat-value">{f_entg}</span>
-        <span class="stat-sub">Pagamento Final</span>
-    </div>
-    </div>
+        <div class="stats-grid">
+            <div class="stat-item"><span class="stat-label">Entrada ({perc_entrada:.0f}%)</span><span class="stat-value highlight">{f_ent}</span><span class="stat-sub">Ato</span></div>
+            <div class="stat-item"><span class="stat-label">Mensais ({num_mensal}x)</span><span class="stat-value">{f_men}</span><span class="stat-sub">Total: {f_tot_men}</span></div>
+            <div class="stat-item"><span class="stat-label">Semestrais ({num_semestral}x)</span><span class="stat-value">{f_sem}</span><span class="stat-sub">Total: {f_tot_sem}</span></div>
+            <div class="stat-item"><span class="stat-label">Entrega ({perc_entrega:.0f}%)</span><span class="stat-value">{f_entg}</span><span class="stat-sub">Chaves</span></div>
+        </div>
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+
+    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True):
         if not unidade: st.error("Preencha a Unidade.")
-        elif preco_total <= 0: st.error("Preencha o Preço Total.")
-        elif round(st.session_state.total_percent, 1) != 100.0: st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
+        elif preco_total <= 0: st.error("Preço inválido.")
+        elif round(tot, 1) != 100.0: st.error("Feche 100% o fluxo.")
         else:
-            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
+            dt = datetime.now().strftime("%Y-%m-%d")
             summary = f"""
 Resumo da Simulação - {obra_selecionada}
 Unidade: {unidade}
 
-Preço Total: {format_currency(preco_total)}
+Preço Total: {f_preco}
 
-Entrada ({perc_entrada:.1f}%): {val_entrada}
-Mensais ({num_mensal}x): {val_por_mensal} (Total: {val_total_mensal})
-Semestrais ({num_semestral}x): {val_por_semestral} (Total: {val_total_semestral})
-Entrega ({perc_entrega:.1f}%): {val_entrega}
+Entrada ({perc_entrada:.1f}%): {f_ent}
+Mensais ({num_mensal}x): {f_men} (Total: {f_tot_men})
+Semestrais ({num_semestral}x): {f_sem} (Total: {f_tot_sem})
+Entrega ({perc_entrega:.1f}%): {f_entg}
 
-Data: {data_hora_atual}
+Data: {dt}
 """
             st.session_state.summary_text = summary
             st.session_state.data_to_save = [
@@ -429,84 +410,65 @@ Data: {data_hora_atual}
                 to_sheet_string(perc_entrada), to_sheet_string(val_entrada),
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
-                to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
-                data_hora_atual
+                to_sheet_string(perc_entrega), to_sheet_string(val_entrega), dt
             ]
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
-        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300)
+        if st.button("Salvar na Planilha", use_container_width=True):
             with st.spinner("Salvando..."):
                 try:
                     sheet = get_worksheet()
-                    if sheet and st.session_state.data_to_save:
-                        nova_linha = st.session_state.data_to_save
-                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
-                        sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
-                        st.toast("Salvo com sucesso!", icon="✅")
-                        carregar_dados_planilha.clear()
-                        reset_to_default_values() 
-                        time.sleep(1)
-                        st.rerun()
-                    else: st.error("Erro de conexão.")
+                    if sheet:
+                        nl = st.session_state.data_to_save
+                        nl[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        sheet.append_row(nl, value_input_option='USER_ENTERED')
+                        st.toast("Salvo!", icon="✅"); carregar_dados_planilha.clear()
+                        reset_to_default_values(); time.sleep(1); st.rerun()
                 except Exception as e: st.error(f"Erro: {e}")
 
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
     df = carregar_dados_planilha()
-
     if df is not None and not df.empty:
         df = df.sort_values(by="Data/Hora", ascending=False)
         sheet = get_worksheet()
-        for index, row in df.iterrows():
+        for idx, row in df.iterrows():
             try:
-                preco_total_num = float(row.get('Preco Total', 0))
-                val_entrada_num = float(row.get('Valor Entrada', 0))
-                val_mensal_num = float(row.get('Valor Mensal', 0))
-                num_mensal_num = int(row.get('Nº Mensal', 0))
-                val_semestral_num = float(row.get('Valor Semestral', 0))
-                num_semestral_num = int(row.get('Nº Semestral', 0))
-                val_entrega_num = float(row.get('Valor Entrega', 0))
-                total_mensal = val_mensal_num * num_mensal_num
-                total_semestral = val_semestral_num * num_semestral_num
+                pt = float(row.get('Preco Total', 0)); ve = float(row.get('Valor Entrada', 0))
+                vm = float(row.get('Valor Mensal', 0)); vs = float(row.get('Valor Semestral', 0))
+                nm = int(row.get('Nº Mensal', 0)); ns = int(row.get('Nº Semestral', 0))
+                tm = vm * nm; ts = vs * ns
             except: continue
             
-            fmt_preco = format_currency(preco_total_num)
-            fmt_entrada = format_currency(val_entrada_num)
-            fmt_mensal = format_currency(val_mensal_num)
-            fmt_semestral = format_currency(val_semestral_num)
-            
             card_html = f"""
-<div class="lavie-card" style="margin-bottom: 0px;">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-    <span style="font-size:1.1rem; font-weight:bold; color:#fff;">{row['Obra']}</span>
-    <span style="background:rgba(227,112,38,0.2); color:#E37026; padding:4px 10px; border-radius:12px; font-size:0.8rem;">Unidade {row['Unidade']}</span>
-</div>
-<div class="stats-grid">
-    <div class="stat-item"><span class="stat-label">Preço Total</span><span class="stat-value highlight">{fmt_preco}</span></div>
-    <div class="stat-item"><span class="stat-label">Entrada</span><span class="stat-value">{fmt_entrada}</span></div>
-    <div class="stat-item"><span class="stat-label">Mensais ({num_mensal_num}x)</span><span class="stat-value">{fmt_mensal}</span><span class="stat-sub">Total: {format_currency(total_mensal)}</span></div>
-    <div class="stat-item"><span class="stat-label">Semestrais ({num_semestral_num}x)</span><span class="stat-value">{fmt_semestral}</span><span class="stat-sub">Total: {format_currency(total_semestral)}</span></div>
-</div>
-</div>
-"""
+            <div class="lavie-card" style="margin-bottom:0;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                    <span style="font-size:1.1rem; font-weight:bold;">{row['Obra']}</span>
+                    <span style="background:rgba(227,112,38,0.2); color:#E37026; padding:4px 10px; border-radius:12px; font-size:0.8rem;">Unidade {row['Unidade']}</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="stat-label">Preço</span><span class="stat-value highlight">{format_currency(pt)}</span></div>
+                    <div class="stat-item"><span class="stat-label">Entrada</span><span class="stat-value">{format_currency(ve)}</span></div>
+                    <div class="stat-item"><span class="stat-label">Mensais ({nm}x)</span><span class="stat-value">{format_currency(vm)}</span><span class="stat-sub">Total: {format_currency(tm)}</span></div>
+                    <div class="stat-item"><span class="stat-label">Semestrais ({ns}x)</span><span class="stat-value">{format_currency(vs)}</span><span class="stat-sub">Total: {format_currency(ts)}</span></div>
+                </div>
+            </div>
+            """
             st.markdown(card_html, unsafe_allow_html=True)
             st.markdown("")
             with st.expander("Opções"):
-                c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
-                if c1.button(f"Editar {row['Unidade']}", key=f"ed_{index}"):
+                c1, c2 = st.columns(2)
+                if c1.button(f"Editar {row['Unidade']}", key=f"ed_{idx}"):
                     if sheet: 
-                         cell = sheet.find(row['Data/Hora'])
-                         if cell: edit_dialog(row.to_dict(), sheet, cell.row)
-                if c4.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
+                        c = sheet.find(row['Data/Hora'])
+                        if c: edit_dialog(row.to_dict(), sheet, c.row)
+                if c2.button(f"Excluir {row['Unidade']}", key=f"dl_{idx}", type="primary"):
                     if sheet:
-                        cell = sheet.find(row['Data/Hora'])
-                        if cell:
-                            sheet.delete_rows(cell.row)
-                            st.toast("Excluído!")
-                            carregar_dados_planilha.clear()
-                            time.sleep(1)
-                            st.rerun()
-            st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
+                        c = sheet.find(row['Data/Hora'])
+                        if c:
+                            sheet.delete_rows(c.row); st.toast("Excluído!")
+                            carregar_dados_planilha.clear(); time.sleep(1); st.rerun()
+            st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
     else: st.info("Nenhuma simulação salva.")
