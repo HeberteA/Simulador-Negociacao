@@ -19,45 +19,44 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 0%, #050505 90%);
+    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
 
-/* --- AQUI ESTA A CORREÇÃO DO GRADIENTE --- */
-/* Aplica o visual Lavie Premium nos containers nativos do Streamlit */
+/* --- AQUI ESTÁ A CORREÇÃO DEFINITIVA DO VISUAL DOS CONTAINERS --- */
+/* Alvo: st.container(border=True) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* O mesmo gradiente exato do Card de Resultado */
-    background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%) !important;
+    /* Gradiente sólido para garantir visibilidade */
+    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    /* Borda sutil igual ao card de baixo */
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    /* Borda fina e elegante */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     
-    /* Arredondamento e Sombra */
+    /* Sombra e Arredondamento */
     border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
     
     padding: 24px !important;
-    margin-bottom: 20px;
+    margin-bottom: 24px !important;
 }
 
-/* Garante que o conteudo dentro do container tenha espaçamento */
+/* Remove o fundo padrão interno se houver */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    gap: 1rem;
+    background-color: transparent !important;
 }
 
-/* --- RESTANTE DO CSS (Inputs, Texto, etc) --- */
+/* --- RESTANTE DO CSS --- */
 
-/* Resumo (Text Area) */
+/* Corrige altura do Resumo */
 div[data-baseweb="textarea"] > div {
     height: auto !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
     border-radius: 8px !important;
 }
 
-/* Inputs Normais */
+/* Inputs */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -72,11 +71,11 @@ div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
 label[data-testid="stLabel"] {
     color: rgba(255, 255, 255, 0.6) !important;
     font-size: 0.85rem !important;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 /* Headers */
-.section-header { display: flex; align-items: center; margin-bottom: 15px; }
+.section-header { display: flex; align-items: center; margin-bottom: 20px; }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
     color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 6px;
@@ -84,10 +83,11 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (HTML Customizado) */
+/* CARD DE RESULTADO (HTML Custom) */
 .lavie-card {
-    background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* O mesmo gradiente dos containers acima para manter consistência */
+    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
