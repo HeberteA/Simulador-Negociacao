@@ -15,102 +15,107 @@ st.set_page_config(
 
 APP_STYLE_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* Fundo Geral do App */
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
-    font-family: 'Inter', sans-serif;
-    color: #ffffff;
-}
-
-/* --- AQUI ESTA A CORREÇÃO DEFINITIVA DO GRADIENTE --- */
-/* Alvo: st.container(border=True) */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* Força o gradiente EXATAMENTE igual ao .lavie-card */
-    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
-    
-    /* Borda fina e elegante */
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    
-    /* Sombra e Arredondamento */
-    border-radius: 16px !important;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
-    
-    padding: 24px !important;
-    margin-bottom: 24px !important;
-}
-
-/* Remove qualquer fundo dos filhos diretos para o gradiente brilhar */
-div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    background-color: transparent !important;
-}
-
-/* --- Inputs --- */
-div[data-baseweb="input"] > div, 
-div[data-baseweb="select"] > div, 
-div[data-baseweb="base-input"] {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-    border-radius: 8px !important;
-    height: 48px;
-}
-
-/* Resumo (Textarea) - Altura automática */
-div[data-baseweb="textarea"] > div {
-    height: auto !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-    color: white !important;
-}
-
-/* Cores dos Textos dos Inputs */
-div[data-testid="stNumberInput"] input, 
-div[data-testid="stTextInput"] input {
-    color: white !important;
+    background: radial-gradient(circle at 10% 20%, #1e1e24 0%, #050505 90%);
+    background-attachment: fixed;
     font-family: 'Inter', sans-serif;
 }
 
-/* Labels */
-label[data-testid="stLabel"] {
-    color: rgba(255, 255, 255, 0.6) !important;
-    font-size: 0.85rem !important;
-    margin-bottom: 8px;
+/* Inputs e Selects Glassmorphism */
+div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 8px !important;
+}
+div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
+    color: white !important;
 }
 
-/* Headers */
-.section-header { display: flex; align-items: center; margin-bottom: 20px; }
-.section-icon {
-    font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
-    color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 6px;
-    border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
-}
-.section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
-
-/* CARD DE RESULTADO (HTML Manual) */
+/* Estilização dos Cards Customizados (Markdown) */
 .lavie-card {
-    /* Mesmo gradiente para manter consistência */
-    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background: linear-gradient(160deg, rgba(30,30,36, 0.6) 0%, rgba(10,10,10, 0.8) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-    margin-top: 10px;
+    padding: 24px;
+    margin-bottom: 0px; /* Margem zero pois o expander vem logo abaixo */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+.lavie-card:hover {
+    border-color: rgba(227, 112, 38, 0.3);
+    box-shadow: 0 12px 32px rgba(227, 112, 38, 0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+}
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+.card-tag {
+    background: rgba(227, 112, 38, 0.15);
+    color: #E37026;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(227, 112, 38, 0.2);
 }
 
 .stats-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 24px;
 }
-@media (max-width: 800px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+.stat-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.stat-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+.stat-value.highlight {
+    color: #E37026;
+}
+.stat-sub {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 2px;
+}
 
-.stat-item { display: flex; flex-direction: column; }
-.stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
-.stat-value { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
-.stat-value.highlight { color: #E37026; }
-.stat-sub { font-size: 0.8rem; color: #555; }
+/* Ajuste fino para o expander nativo parecer parte do card */
+div[data-testid="stExpander"] {
+    background-color: rgba(30,30,36, 0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    margin-top: -5px; /* Cola no card de cima */
+    margin-bottom: 24px;
+}
+div[data-testid="stExpander"] details {
+    border: none;
+}
 </style>
 """
 st.markdown(APP_STYLE_CSS, unsafe_allow_html=True)
