@@ -380,14 +380,15 @@ with tab1:
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
 
     with st.container(border=True):
-        col_dados, col_prazos = st.columns([1.2, 1])
+    col_dados, col_prazos = st.columns([1.2, 1])
         
-        with col_dados:
+    with col_dados:
+        with st.container(border=True):
             render_header("apartment", "Dados da Unidade")
             unidade = st.text_input("Unidade / Sala", key="main_unidade")
-            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
-    with st.container(border=True):        
-        with col_prazos:
+            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")    
+    with col_prazos:
+        with st.container(border=True):
             render_header("calendar_month", "Configuração de Prazos")
             num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
             num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
