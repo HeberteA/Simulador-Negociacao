@@ -342,9 +342,9 @@ with tab1:
     perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
     perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
 
-    total_percent = st.session_state.total_percent
-    color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
-    icon_st = "check_circle" if total_percent == 100 else "warning"
+    tot = st.session_state.total_percent
+    color = "#09ab3b" if tot == 100 else "#ff4b4b"
+    icon = "check_circle" if tot == 100 else "warning"
     st.markdown(f"""
         <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
@@ -389,9 +389,9 @@ with tab1:
     if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True):
         if not unidade: st.error("Preencha a Unidade.")
         elif preco_total <= 0: st.error("Preço inválido.")
-        elif round(tot, 1) != 100.0: st.error("Feche 100% o fluxo.")
+        elif round(st.session_state.total_percent, 1) != 100.0: st.error("Feche 100% o fluxo.")
         else:
-            dt = datetime.now().strftime("%Y-%m-%d")
+            dt = datetime.now().strftime("%d/%m/%Y")
             summary = f"""
 Resumo da Simulação - {obra_selecionada}
 Unidade: {unidade}
