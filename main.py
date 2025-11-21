@@ -599,14 +599,14 @@ with tab2:
             st.markdown("")
             
             with st.expander("Opções e Detalhes"):
-                c_act1, c_act2, c_act3, c_act4 = st.columns(4)
+                c_act1, c_act2, c_act3, c_act4 = st.columns([1, 2, 2, 1])
                 with c_act1:
-                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}", use_container_width=True):
+                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}"):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
                             if cell: edit_dialog(row.to_dict(), sheet, cell.row)
 
-                with c_act2:
+                with c_act4:
                      if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
