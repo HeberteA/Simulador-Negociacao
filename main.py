@@ -406,7 +406,7 @@ with tab1:
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
--
+
     with st.container():
         st.markdown('<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05);">', unsafe_allow_html=True)
         
