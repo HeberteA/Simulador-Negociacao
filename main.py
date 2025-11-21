@@ -415,8 +415,8 @@ Data: {dt}
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300)
-        if st.button("Salvar na Planilha", use_container_width=True):
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
+        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Salvando..."):
                 try:
                     sheet = get_worksheet()
@@ -459,12 +459,12 @@ with tab2:
             st.markdown(card_html, unsafe_allow_html=True)
             st.markdown("")
             with st.expander("Opções"):
-                c1, c2 = st.columns(2)
+                c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
                 if c1.button(f"Editar {row['Unidade']}", key=f"ed_{idx}"):
                     if sheet: 
                         c = sheet.find(row['Data/Hora'])
                         if c: edit_dialog(row.to_dict(), sheet, c.row)
-                if c2.button(f"Excluir {row['Unidade']}", key=f"dl_{idx}", type="primary"):
+                if c4.button(f"Excluir {row['Unidade']}", key=f"dl_{idx}", type="primary"):
                     if sheet:
                         c = sheet.find(row['Data/Hora'])
                         if c:
