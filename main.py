@@ -19,22 +19,22 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
 /* Fundo Geral do App */
-<style>
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #1e1e24 0%, #050505 90%);
-    background-attachment: fixed;
+    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
 }
 
-
-/* --- CORREÇÃO BRUTA PARA OS CONTAINERS SUPERIORES --- */
-
-/* 1. Aplica o Gradiente no Container (Wrapper) */
+/* --- AQUI ESTA A CORREÇÃO DEFINITIVA DO GRADIENTE --- */
+/* Alvo: st.container(border=True) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* O mesmo gradiente exato do Card de Resultado */
+    /* Força o gradiente EXATAMENTE igual ao .lavie-card */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    /* Mesma borda e sombra */
+    /* Borda fina e elegante */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    
+    /* Sombra e Arredondamento */
     border-radius: 16px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
     
@@ -42,7 +42,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     margin-bottom: 24px !important;
 }
 
-/* 2. FORÇA TRANSPARÊNCIA NOS FILHOS (Isso que estava tapando o gradiente) */
+/* Remove qualquer fundo dos filhos diretos para o gradiente brilhar */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
     background-color: transparent !important;
 }
@@ -67,7 +67,7 @@ div[data-baseweb="textarea"] > div {
     color: white !important;
 }
 
-/* Texto dos Inputs */
+/* Cores dos Textos dos Inputs */
 div[data-testid="stNumberInput"] input, 
 div[data-testid="stTextInput"] input {
     color: white !important;
@@ -90,8 +90,9 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (HTML Manual - Já estava funcionando) */
+/* CARD DE RESULTADO (HTML Manual) */
 .lavie-card {
+    /* Mesmo gradiente para manter consistência */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
@@ -320,15 +321,13 @@ with tab1:
     col_dados, col_prazos = st.columns([1.2, 1])
         
     with col_dados:
-        with st.container(border=True):
-            render_header("apartment", "Dados da Unidade")
-            unidade = st.text_input("Unidade / Sala", key="main_unidade")
-            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")    
+        render_header("apartment", "Dados da Unidade")
+        unidade = st.text_input("Unidade / Sala", key="main_unidade")
+        preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")    
     with col_prazos:
-        with st.container(border=True):
-            render_header("calendar_month", "Configuração de Prazos")
-            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-            num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
+        render_header("calendar_month", "Configuração de Prazos")
+        num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+        num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -494,12 +493,12 @@ with tab2:
             st.markdown(card_html, unsafe_allow_html=True)
             st.markdown("")
             with st.expander("Opções"):
-                c1, c2 = st.columns(2)
+                c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
                 if c1.button(f"Editar {row['Unidade']}", key=f"ed_{index}"):
                     if sheet: 
                          cell = sheet.find(row['Data/Hora'])
                          if cell: edit_dialog(row.to_dict(), sheet, cell.row)
-                if c2.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
+                if c4.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
                     if sheet:
                         cell = sheet.find(row['Data/Hora'])
                         if cell:
