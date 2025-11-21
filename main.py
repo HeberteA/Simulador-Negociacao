@@ -440,16 +440,17 @@ with tab1:
     val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
     st.markdown("<br>", unsafe_allow_html=True)
-    render_header("analytics", "Resultado Financeiro")
+    with st.container(border=True):
+        render_header("analytics", "Resultado Financeiro")
 
-    f_ent = format_currency(val_entrada)
-    f_men = format_currency(val_por_mensal)
-    f_t_men = format_currency(val_total_mensal)
-    f_sem = format_currency(val_por_semestral)
-    f_t_sem = format_currency(val_total_semestral)
-    f_entg = format_currency(val_entrega)
+        f_ent = format_currency(val_entrada)
+        f_men = format_currency(val_por_mensal)
+        f_t_men = format_currency(val_total_mensal)
+        f_sem = format_currency(val_por_semestral)
+        f_t_sem = format_currency(val_total_semestral)
+        f_entg = format_currency(val_entrega)
 
-    card_html = f"""
+        card_html = f"""
 <div class="lavie-card">
 <div class="stats-grid">
 <div class="stat-item">
