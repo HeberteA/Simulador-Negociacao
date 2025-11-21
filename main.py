@@ -601,6 +601,7 @@ with tab2:
 </div>
 </div>
 """
+        with st.container(border=True):
             st.markdown(card_html, unsafe_allow_html=True)
             
             with st.expander("Opções e Detalhes"):
