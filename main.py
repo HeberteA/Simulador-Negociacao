@@ -313,40 +313,39 @@ with tab1:
     if "summary_text" not in st.session_state: st.session_state.summary_text = ""
     if "data_to_save" not in st.session_state: st.session_state.data_to_save = None
 
-    st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
-
+    st.markdown(f"<h3 style='color: #E37026; margin: 0 0 10px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
+    
     col_dados, col_prazos = st.columns([1.2, 1])
-        
     with col_dados:
-        render_header("apartment", "Dados da Unidade")
-        unidade = st.text_input("Unidade / Sala", key="main_unidade")
-        preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")    
+        with st.container(border=True):
+            render_header("apartment", "Dados da Unidade")
+            unidade = st.text_input("Unidade / Sala", key="main_unidade")
+            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
     with col_prazos:
-        render_header("calendar_month", "Configuração de Prazos")
-        num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-        num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
+        with st.container(border=True):
+            render_header("calendar_month", "Configuração de Prazos")
+            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+            num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    render_header("pie_chart", "Distribuição do Fluxo (%)")
-    if "total_percent" not in st.session_state: st.session_state.total_percent = 0.0
-    def atualizar_percentual():
-        st.session_state.total_percent = (
-            st.session_state.get('perc_entrada', 0.0) + st.session_state.get('perc_mensal', 0.0) +
-            st.session_state.get('perc_semestral', 0.0) + st.session_state.get('perc_entrega', 0.0)
-        )
-    c_flow = st.columns(4)
-    perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
-    perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
-    perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
-    perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
-
-    tot = st.session_state.total_percent
-    color = "#09ab3b" if tot == 100 else "#ff4b4b"
-    icon = "check_circle" if tot == 100 else "warning"
+    with st.container(border=True):
+        render_header("pie_chart", "Distribuição do Fluxo (%)")
+        if "total_percent" not in st.session_state: st.session_state.total_percent = 0.0
         
-    st.markdown(f"""
+        def calc_pct():
+            st.session_state.total_percent = st.session_state.perc_entrada + st.session_state.perc_mensal + st.session_state.perc_semestral + st.session_state.perc_entrega
+        
+        c_flow = st.columns(4)
+        perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=calc_pct)
+        perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=calc_pct)
+        perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=calc_pct)
+        perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=calc_pct)
+
+        total_percent = st.session_state.total_percent
+        color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
+        icon_st = "check_circle" if total_percent == 100 else "warning"
+        st.markdown(f"""
         <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
             <div style="display:flex; align-items:center; color: {color_st}; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;">
@@ -354,7 +353,7 @@ with tab1:
                 <span style="font-weight:600;">{total_percent:.1f}%</span>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
