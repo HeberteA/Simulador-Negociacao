@@ -496,10 +496,10 @@ Unidade: {unidade}
 
 *Preço Total:* {format_currency(preco_total)}
 
-*Entrada ({perc_entrada:.1f}%):* {s_entrada}
-*Mensais ({num_mensal}x):* {s_mensal} (Total: {s_total_mensal})
-*Semestrais ({num_semestral}x):* {s_semestral} (Total: {s_total_semestral})
-*Entrega ({perc_entrega:.1f}%):* {s_entrega}
+*Entrada ({perc_entrada:.1f}%):* {val_entrada}
+*Mensais ({num_mensal}x):* {s_mensal} (Total: {val_total_mensal})
+*Semestrais ({num_semestral}x):* {s_semestral} (Total: {val_total_semestral})
+*Entrega ({perc_entrega:.1f}%):* {sval_entrega}
 
 Data: {data_hora_atual}
 """
