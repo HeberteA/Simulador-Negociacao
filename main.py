@@ -379,7 +379,6 @@ with tab1:
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
 
-    with st.container(border=True):
     col_dados, col_prazos = st.columns([1.2, 1])
         
     with col_dados:
