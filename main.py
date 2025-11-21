@@ -19,11 +19,12 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
 /* Fundo Geral do App */
+<style>
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
-    font-family: 'Inter', sans-serif;
-    color: #ffffff;
+    background: radial-gradient(circle at 10% 20%, #1e1e24 0%, #050505 90%);
+    background-attachment: fixed;
 }
+
 
 /* --- CORREÇÃO BRUTA PARA OS CONTAINERS SUPERIORES --- */
 
