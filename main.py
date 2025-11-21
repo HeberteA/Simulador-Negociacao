@@ -25,15 +25,19 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* --- CORREÇÃO DO GRADIENTE DOS CONTAINERS --- */
-/* Forçamos o gradiente via background-image e zeramos a cor de fundo sólida */
+/* --- AQUI ESTA A CORREÇÃO DEFINITIVA DO GRADIENTE --- */
+/* Alvo: st.container(border=True) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: transparent !important;
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    /* Força o gradiente EXATAMENTE igual ao .lavie-card */
+    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
+    /* Borda fina e elegante */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    
+    /* Sombra e Arredondamento */
     border-radius: 16px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+    
     padding: 24px !important;
     margin-bottom: 24px !important;
 }
@@ -89,7 +93,7 @@ label[data-testid="stLabel"] {
 /* CARD DE RESULTADO (HTML Manual) */
 .lavie-card {
     /* Mesmo gradiente para manter consistência */
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 30px;
@@ -442,9 +446,6 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
-
-
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
     val_total_semestral = (preco_total * perc_semestral) / 100
@@ -454,17 +455,18 @@ with tab1:
     val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
     st.markdown("<br>", unsafe_allow_html=True)
-    with st.container(border=True):
-        render_header("analytics", "Resultado Financeiro")
+    
+    # CARD DE RESULTADO (Manual)
+    render_header("analytics", "Resultado Financeiro")
 
-        f_ent = format_currency(val_entrada)
-        f_men = format_currency(val_por_mensal)
-        f_t_men = format_currency(val_total_mensal)
-        f_sem = format_currency(val_por_semestral)
-        f_t_sem = format_currency(val_total_semestral)
-        f_entg = format_currency(val_entrega)
+    f_ent = format_currency(val_entrada)
+    f_men = format_currency(val_por_mensal)
+    f_t_men = format_currency(val_total_mensal)
+    f_sem = format_currency(val_por_semestral)
+    f_t_sem = format_currency(val_total_semestral)
+    f_entg = format_currency(val_entrega)
 
-        card_html = f"""
+    card_html = f"""
     <div class="lavie-card">
     <div class="stats-grid">
     <div class="stat-item">
@@ -490,21 +492,21 @@ with tab1:
     </div>
     </div>
     """
-        st.markdown(card_html, unsafe_allow_html=True)
+    st.markdown(card_html, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     
-        if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         
-            if not unidade:
-                st.error("Preencha a Unidade.")
-            elif preco_total <= 0:
-                st.error("Preencha o Preço Total.")
-            elif round(st.session_state.total_percent, 1) != 100.0:
-                st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
-            else:
-                data_hora_atual = datetime.now().strftime("%Y-%m-%d")
-                summary = f"""
+        if not unidade:
+            st.error("Preencha a Unidade.")
+        elif preco_total <= 0:
+            st.error("Preencha o Preço Total.")
+        elif round(st.session_state.total_percent, 1) != 100.0:
+            st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
+        else:
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
+            summary = f"""
 Resumo da Simulação - {obra_selecionada}
 Unidade: {unidade}
 
