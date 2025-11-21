@@ -60,10 +60,11 @@ div[data-baseweb="base-input"] {
 
 /* Text Area (Resumo) */
 div[data-baseweb="textarea"] > div {
+    height: auto !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
     color: white !important;
+    border-radius: 8px !important;
 }
 
 /* Texto dos Inputs */
