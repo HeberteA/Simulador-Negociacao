@@ -88,7 +88,7 @@ label[data-testid="stLabel"] {
 
 .stat-item { display: flex; flex-direction: column; }
 .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
-.stat-value { font-size: 1.3rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
+.stat-value { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
 .stat-value.highlight { color: #E37026; }
 .stat-sub { font-size: 0.8rem; color: #555; }
 </style>
@@ -602,7 +602,7 @@ with tab2:
 </div>
 """
             st.markdown(card_html, unsafe_allow_html=True)
-            st.space("small")
+            st.markdown("")
             
             with st.expander("Opções e Detalhes"):
                 c_act1, c_act2, c_act3, c_act4 = st.columns(4)
