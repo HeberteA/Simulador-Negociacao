@@ -76,7 +76,7 @@ label[data-testid="stLabel"] {
 .lavie-card {
     background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 30px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     margin-top: 10px;
@@ -605,15 +605,15 @@ with tab2:
             st.space("small")
             
             with st.expander("Opções e Detalhes"):
-                c_act1, c_act2, c_act3 = st.columns(3)
+                c_act1, c_act2, c_act3, c_act4 = st.columns(4)
                 with c_act1:
-                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}"):
+                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}", use_container_width=True):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
                             if cell: edit_dialog(row.to_dict(), sheet, cell.row)
 
-                with c_act3:
-                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
+                with c_act4:
+                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary", use_container_width=True):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
                             if cell:
