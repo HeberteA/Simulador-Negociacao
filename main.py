@@ -34,46 +34,44 @@ div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     color: white !important;
 }
 
-/* Estilização dos Cards Customizados (Markdown) */
+/* Títulos de Seção Personalizados */
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+.section-icon {
+    font-size: 1.2rem;
+    margin-right: 12px;
+    background: rgba(227, 112, 38, 0.2);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: #E37026;
+}
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+/* Estilização dos Cards (Reutilizado para o Resumo) */
 .lavie-card {
-    background: linear-gradient(160deg, rgba(30,30,36, 0.6) 0%, rgba(10,10,10, 0.8) 100%);
+    background: linear-gradient(160deg, rgba(30,30,36, 0.8) 0%, rgba(10,10,10, 0.9) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 24px;
-    margin-bottom: 0px; /* Margem zero pois o expander vem logo abaixo */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-}
-.lavie-card:hover {
-    border-color: rgba(227, 112, 38, 0.3);
-    box-shadow: 0 12px 32px rgba(227, 112, 38, 0.05);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 16px;
     margin-bottom: 20px;
 }
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.5px;
-}
-.card-tag {
-    background: rgba(227, 112, 38, 0.15);
-    color: #E37026;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border: 1px solid rgba(227, 112, 38, 0.2);
-}
-
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -91,35 +89,28 @@ div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     margin-bottom: 6px;
 }
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #fff;
     font-weight: 600;
 }
-.stat-value.highlight {
-    color: #E37026;
-}
+.stat-value.highlight { color: #E37026; }
 .stat-sub {
-    font-size: 0.8rem;
-    color: #555;
-    margin-top: 2px;
-}
-
-/* Ajuste fino para o expander nativo parecer parte do card */
-div[data-testid="stExpander"] {
-    background-color: rgba(30,30,36, 0.3);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    margin-top: -5px; /* Cola no card de cima */
-    margin-bottom: 24px;
-}
-div[data-testid="stExpander"] details {
-    border: none;
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 4px;
 }
 </style>
 """
 st.markdown(APP_STYLE_CSS, unsafe_allow_html=True)
 
+def render_header(icon, title):
+    st.markdown(f"""
+        <div class="section-header">
+            <div class="section-icon">{icon}</div>
+            <div class="section-title">{title}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
 def format_currency(value):
     if value is None:
         return "R$ 0,00"
@@ -400,21 +391,21 @@ with tab1:
     if "data_to_save" not in st.session_state:
         st.session_state.data_to_save = None
 
-    st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Nova Simulação: {obra_selecionada}</span>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color: #E37026;'>Nova Simulação: {obra_selecionada}</h3>", unsafe_allow_html=True)
 
     form_cols = st.columns(2)
 
     with form_cols[0]:
-        st.markdown("##### Dados da Simulação")
+        render_header("", "Dados do Imóvel")
         unidade = st.text_input("Unidade / Sala", key="main_unidade")
-        preco_total = st.number_input("Preço Total da Unidade (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+        preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
 
-        st.markdown("##### Nº de Parcelas")
-        num_mensal = st.number_input("Nº de Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
-        num_semestral = st.number_input("Nº de Parcelas Semestrais", min_value=0, step=1, key="main_num_semestral")
+        render_header("", "Prazos")
+        num_mensal = st.number_input("Qtd. Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
+        num_semestral = st.number_input("Qtd. Parcelas Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     with form_cols[1]:
-        st.markdown("##### Definição do Fluxo de Pagamento (%)")
+        render_header("percent", "Fluxo de Pagamento (%)")
 
         if "total_percent" not in st.session_state:
             st.session_state.total_percent = 0.0
@@ -428,20 +419,17 @@ with tab1:
             )
 
         perc_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
+        perc_mensal = st.number_input("Total Mensais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
+        perc_semestral = st.number_input("Total Semestrais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
         perc_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
-        st.markdown("##### % de Parcelas")
-        perc_mensal = st.number_input("Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
-        perc_semestral = st.number_input("Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
-
 
         total_percent = st.session_state.total_percent
-
         if total_percent > 100.0:
-            st.error(f"Percentual total excede 100%! (Total: {total_percent:.1f}%)")
+            st.markdown(f"<div style='color: #ff4b4b; font-size: 0.9rem; margin-top: 5px;'>Total excede 100% ({total_percent:.1f}%)</div>", unsafe_allow_html=True)
         elif total_percent < 100.0:
-            st.warning(f"Percentual não fecha 100%. (Total: {total_percent:.1f}%)")
+            st.markdown(f"<div style='color: #ffa500; font-size: 0.9rem; margin-top: 5px;'>Falta fechar 100% ({total_percent:.1f}%)</div>", unsafe_allow_html=True)
         else:
-            st.success(f"Percentual fechado em 100%!")
+            st.markdown(f"<div style='color: #09ab3b; font-size: 0.9rem; margin-top: 5px;'>Fechado em 100%</div>", unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -453,20 +441,41 @@ with tab1:
     val_por_mensal = round((val_total_mensal / num_mensal), 2) if num_mensal > 0 else 0
     val_por_semestral = round((val_total_semestral / num_semestral), 2) if num_semestral > 0 else 0
 
-    st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Valores Calculados</span>", unsafe_allow_html=True)
+    
+    render_header("bar_chart", "Resultado da Simulação")
+    
+    resumo_html = f"""
+    <div class="lavie-card">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Entrada</span>
+                <span class="stat-value highlight">{format_currency(val_entrada)}</span>
+                <span class="stat-sub">{perc_entrada:.1f}%</span>
+            </div>
+            
+            <div class="stat-item">
+                <span class="stat-label">Mensais ({num_mensal}x)</span>
+                <span class="stat-value">{format_currency(val_por_mensal)}</span>
+                <span class="stat-sub">Total: {format_currency(val_total_mensal)}</span>
+            </div>
+            
+            <div class="stat-item">
+                <span class="stat-label">Semestrais ({num_semestral}x)</span>
+                <span class="stat-value">{format_currency(val_por_semestral)}</span>
+                <span class="stat-sub">Total: {format_currency(val_total_semestral)}</span>
+            </div>
+            
+            <div class="stat-item">
+                <span class="stat-label">Entrega</span>
+                <span class="stat-value">{format_currency(val_entrega)}</span>
+                <span class="stat-sub">{perc_entrega:.1f}%</span>
+            </div>
+        </div>
+    </div>
+    """
+    st.markdown(resumo_html, unsafe_allow_html=True)
 
-    calc_cols_1 = st.columns(2)
-    calc_cols_1[0].metric("Valor Entrada", format_currency(val_entrada))
-    calc_cols_1[1].metric("Valor Entrega", format_currency(val_entrega))
-
-    calc_cols_2 = st.columns(2)
-    calc_cols_2[0].metric(f"Valor Mensal ", format_currency(val_por_mensal), delta=f"{num_mensal}x")
-    calc_cols_2[1].metric(f"Valor Semestral", format_currency(val_por_semestral), delta=f"{num_semestral}x")
-
-
-    st.markdown("---")
-
-    if st.button("Gerar Resumo", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         if not unidade:
             st.error("Por favor, preencha o nome da Unidade.")
             st.session_state.summary_text = ""
@@ -506,10 +515,10 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
                 to_sheet_string(perc_entrada), 
                 to_sheet_string(val_entrada),
                 to_sheet_string(perc_mensal), 
-                num_mensal, # Inteiro
+                num_mensal, 
                 to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), 
-                num_semestral, # Inteiro
+                num_semestral, 
                 to_sheet_string(val_por_semestral),
                 to_sheet_string(perc_entrega), 
                 to_sheet_string(val_entrega),
@@ -518,7 +527,7 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
 
     if st.session_state.summary_text:
         st.markdown("##### Resumo Gerado")
-        st.text_area("Resumo para Copiar:", value=st.session_state.summary_text, height=300, key="summary_display", disabled=True)
+        st.text_area("Copie abaixo:", value=st.session_state.summary_text, height=250, key="summary_display", disabled=True)
 
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Conectando ao Google Sheets e salvando..."):
@@ -529,13 +538,13 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
                         nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
 
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
-                        st.success("Simulação salva com sucesso na planilha!")
+                        st.toast("Simulação salva com sucesso!", icon="✅")
 
                         reset_to_default_values() 
 
                         st.cache_data.clear() 
                         st.cache_resource.clear()
-                        time.sleep(1)
+                        time.sleep(1.5)
                         st.rerun() 
                     elif not st.session_state.data_to_save:
                          st.error("Erro: Dados do resumo perdidos. Tente gerar novamente.")
@@ -543,8 +552,7 @@ Total:         {total_percent:.1f}% | {format_currency(preco_total)}
                         st.error("Falha ao salvar: Não foi possível conectar à planilha.")
                 except Exception as e:
                     st.error(f"Falha ao salvar na planilha: {e}")
-
-
+                    
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
 
