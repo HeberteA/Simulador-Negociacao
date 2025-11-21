@@ -437,23 +437,25 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    val_entrada = (preco_total * perc_entrada) / 100
-    val_total_mensal = (preco_total * perc_mensal) / 100
-    val_total_semestral = (preco_total * perc_semestral) / 100
-    val_entrega = (preco_total * perc_entrega) / 100
+    st.markdown("---")
 
-    val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
-    val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
+    val_entrada = round((preco_total * perc_entrada) / 100, 2)
+    val_total_mensal = round((preco_total * perc_mensal) / 100, 2)
+    val_total_semestral = round((preco_total * perc_semestral) / 100, 2)
+    val_entrega = round((preco_total * perc_entrega) / 100, 2)
+
+    val_por_mensal = round((val_total_mensal / num_mensal), 2) if num_mensal > 0 else 0
+    val_por_semestral = round((val_total_semestral / num_semestral), 2) if num_semestral > 0 else 0
 
     
-    render_header("analytics", "Resultado Financeiro")
-
-    s_ent = format_currency(val_entrada)
-    s_men = format_currency(val_por_mensal)
-    s_tot_men = format_currency(val_total_mensal)
-    s_sem = format_currency(val_por_semestral)
-    s_tot_sem = format_currency(val_total_semestral)
-    s_entg = format_currency(val_entrega)
+    render_header("analytics", "Resultado da Simulação")
+    
+    s_entrada = format_currency(val_entrada)
+    s_mensal = format_currency(val_por_mensal)
+    s_total_mensal = format_currency(val_total_mensal)
+    s_semestral = format_currency(val_por_semestral)
+    s_total_semestral = format_currency(val_total_semestral)
+    s_entrega = format_currency(val_entrega)
 
     card_html = f"""
 <div class="lavie-card">
@@ -483,7 +485,6 @@ with tab1:
 """
     st.markdown(card_html, unsafe_allow_html=True)
 
-    # Botões
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True):
         if not unidade or preco_total <= 0 or round(total, 1) != 100.0:
