@@ -24,17 +24,14 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* Estilização do Container Nativo (border=True) para parecer o Card Lavie */
+/* Estilo das Caixas (Containers) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background-color: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 16px !important;
     padding: 24px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-/* Garante que o container ocupe espaço corretamente */
-div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    gap: 1rem;
+    margin-bottom: 20px; /* Espaço entre os containers */
 }
 
 /* Inputs Glassmorphism */
@@ -57,7 +54,7 @@ label[data-testid="stLabel"] {
 
 /* Headers de Seção */
 .section-header {
-    display: flex; align-items: center; margin-bottom: 20px;
+    display: flex; align-items: center; margin-bottom: 15px;
 }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
@@ -224,7 +221,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             st.session_state.get('edit_perc_entrega', 0.0)
         )
 
-    form_cols = st.columns(3)
+    form_cols = st.columns(2)
     with form_cols[0]:
         st.markdown("##### Dados da Simulação")
         st.text_input("Unidade / Sala", value=row_data['Unidade'], disabled=True)
@@ -235,7 +232,6 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             value=float(row_data.get('Preco Total', 500000)), 
             key="edit_preco_total"
         )
-    with form_cols[1]:    
         st.markdown("##### Nº de Parcelas")
         num_mensal = st.number_input(
             "Nº de Parcelas Mensais", 
@@ -381,17 +377,16 @@ with tab1:
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
     
     with st.container(border=True):
-        col_dados, col_prazos = st.columns([1.2, 1])
-        
-        with col_dados:
-            render_header("apartment", "Dados da Unidade")
-            unidade = st.text_input("Unidade / Sala", key="main_unidade")
-            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
-            
-        with col_prazos:
-            render_header("calendar_month", "Configuração de Prazos")
-            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-            num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
+        render_header("apartment", "Dados da Unidade")
+        c_dados = st.columns([1, 1.5])
+        unidade = c_dados[0].text_input("Unidade / Sala", key="main_unidade")
+        preco_total = c_dados[1].number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+
+    with st.container(border=True):
+        render_header("calendar_month", "Configuração de Prazos")
+        c_prazos = st.columns(2)
+        num_mensal = c_prazos[0].number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+        num_semestral = c_prazos[1].number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -479,12 +474,29 @@ with tab1:
     st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Gerar Resumo", type="primary", use_container_width=True):
-        if not unidade or preco_total <= 0 or round(total, 1) != 100.0:
-            st.error("Verifique os dados (Unidade, Preço e Percentual 100%).")
+    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+        
+        if not unidade:
+            st.error("Preencha a Unidade.")
+        elif preco_total <= 0:
+            st.error("Preencha o Preço Total.")
+        elif round(st.session_state.total_percent, 1) != 100.0:
+            st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
         else:
-            dt_now = datetime.now().strftime("%d/%m/%Y")
-            summary = f"*Simulação {obra_selecionada} - Unid {unidade}*\n\nValor: {format_currency(preco_total)}\n\nEntrada: {f_ent}\nMensais: {num_mensal}x {f_men}\nSemestrais: {num_semestral}x {f_sem}\nEntrega: {f_entg}\n\n{dt_now}"
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
+            summary = f"""
+*Resumo da Simulação - {obra_selecionada}*
+Unidade: {unidade}
+
+*Preço Total:* {format_currency(preco_total)}
+
+*Entrada ({perc_entrada:.1f}%):* {s_entrada}
+*Mensais ({num_mensal}x):* {s_mensal} (Total: {s_total_mensal})
+*Semestrais ({num_semestral}x):* {s_semestral} (Total: {s_total_semestral})
+*Entrega ({perc_entrega:.1f}%):* {s_entrega}
+
+Data: {data_hora_atual}
+"""
             st.session_state.summary_text = summary
             st.session_state.data_to_save = [
                 obra_selecionada, unidade, to_sheet_string(preco_total),
@@ -492,24 +504,29 @@ with tab1:
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
                 to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
-                datetime.now().strftime("%Y-%m-%d")
+                data_hora_atual
             ]
 
-    if st.session_state.summary_text:
-        st.text_area("Copiar:", value=st.session_state.summary_text, height=300, key="summary_display")
-        if st.button("Salvar na Planilha", use_container_width=True):
-             try:
-                sheet = get_worksheet()
-                if sheet:
-                    row = st.session_state.data_to_save
-                    row[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    sheet.append_row(row, value_input_option='USER_ENTERED')
-                    st.success("Salvo!")
-                    time.sleep(1)
-                    reset_to_default_values()
-                    st.rerun()
-             except Exception as e:
-                st.error(f"Erro: {e}")
+    if st.session_state.get("summary_text"):
+        st.markdown("##### Resumo Pronto")
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
+
+        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
+            with st.spinner("Salvando..."):
+                try:
+                    sheet = get_worksheet()
+                    if sheet and st.session_state.data_to_save:
+                        nova_linha = st.session_state.data_to_save
+                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+                        sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
+                        st.toast("Salvo com sucesso!", icon="✅")
+                        reset_to_default_values() 
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("Erro ao conectar com a planilha.")
+                except Exception as e:
+                    st.error(f"Erro: {e}")
                     
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
