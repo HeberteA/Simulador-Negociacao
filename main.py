@@ -451,31 +451,31 @@ with tab1:
         f_entg = format_currency(val_entrega)
 
         card_html = f"""
-<div class="lavie-card">
-<div class="stats-grid">
-<div class="stat-item">
-    <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
-    <span class="stat-value highlight">{f_ent}</span>
-    <span class="stat-sub">Pagamento Ato</span>
-</div>
-<div class="stat-item">
-    <span class="stat-label">Mensais ({num_mensal}x)</span>
-    <span class="stat-value">{f_men}</span>
-    <span class="stat-sub">Total: {f_t_men}</span>
-</div>
-<div class="stat-item">
-    <span class="stat-label">Semestrais ({num_semestral}x)</span>
-    <span class="stat-value">{f_sem}</span>
-    <span class="stat-sub">Total: {f_t_sem}</span>
-</div>
-<div class="stat-item">
-    <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
-    <span class="stat-value">{f_entg}</span>
-    <span class="stat-sub">Pagamento Final</span>
-</div>
-</div>
-</div>
-"""
+    <div class="lavie-card">
+    <div class="stats-grid">
+    <div class="stat-item">
+        <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
+        <span class="stat-value highlight">{f_ent}</span>
+        <span class="stat-sub">Pagamento Ato</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Mensais ({num_mensal}x)</span>
+        <span class="stat-value">{f_men}</span>
+        <span class="stat-sub">Total: {f_t_men}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Semestrais ({num_semestral}x)</span>
+        <span class="stat-value">{f_sem}</span>
+        <span class="stat-sub">Total: {f_t_sem}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
+        <span class="stat-value">{f_entg}</span>
+        <span class="stat-sub">Pagamento Final</span>
+    </div>
+    </div>
+    </div>
+    """
     st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
