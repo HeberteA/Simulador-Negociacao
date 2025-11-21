@@ -484,19 +484,19 @@ with tab1:
     """
         st.markdown(card_html, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+        if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         
-        if not unidade:
-            st.error("Preencha a Unidade.")
-        elif preco_total <= 0:
-            st.error("Preencha o Preço Total.")
-        elif round(st.session_state.total_percent, 1) != 100.0:
-            st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
-        else:
-            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
-            summary = f"""
+            if not unidade:
+                st.error("Preencha a Unidade.")
+            elif preco_total <= 0:
+                st.error("Preencha o Preço Total.")
+            elif round(st.session_state.total_percent, 1) != 100.0:
+                st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
+            else:
+                data_hora_atual = datetime.now().strftime("%Y-%m-%d")
+                summary = f"""
 Resumo da Simulação - {obra_selecionada}
 Unidade: {unidade}
 
