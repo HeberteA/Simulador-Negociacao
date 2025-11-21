@@ -15,33 +15,107 @@ st.set_page_config(
 
 APP_STYLE_CSS = """
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 [data-testid="stAppViewContainer"] {
     background: radial-gradient(circle at 10% 20%, #1e1e24 0%, #050505 90%);
     background-attachment: fixed;
+    font-family: 'Inter', sans-serif;
 }
-/* Ajustes de Inputs para contraste */
+
+/* Inputs e Selects Glassmorphism */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
+    border-radius: 8px !important;
 }
 div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     color: white !important;
 }
-/* Steps */
-.step-container {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
-    background: rgba(255,255,255,0.03); padding: 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.05);
+
+/* Estilização dos Cards Customizados (Markdown) */
+.lavie-card {
+    background: linear-gradient(160deg, rgba(30,30,36, 0.6) 0%, rgba(10,10,10, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 0px; /* Margem zero pois o expander vem logo abaixo */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
-.step-item {
-    display: flex; align-items: center; flex-direction: column; color: #666; font-weight: 500; width: 33%; position: relative;
+.lavie-card:hover {
+    border-color: rgba(227, 112, 38, 0.3);
+    box-shadow: 0 12px 32px rgba(227, 112, 38, 0.05);
 }
-.step-item .step-number {
-    width: 35px; height: 35px; border-radius: 50%; border: 2px solid #555; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; margin-bottom: 8px; transition: all 0.3s ease; background-color: #111;
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
 }
-.step-item.active { color: #E37026; }
-.step-item.active .step-number { border-color: #E37026; background-color: #E37026; color: #FFFFFF; box-shadow: 0 0 15px rgba(227, 112, 38, 0.5); }
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+.card-tag {
+    background: rgba(227, 112, 38, 0.15);
+    color: #E37026;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(227, 112, 38, 0.2);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 24px;
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+.stat-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+.stat-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+.stat-value.highlight {
+    color: #E37026;
+}
+.stat-sub {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 2px;
+}
+
+/* Ajuste fino para o expander nativo parecer parte do card */
+div[data-testid="stExpander"] {
+    background-color: rgba(30,30,36, 0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    margin-top: -5px; /* Cola no card de cima */
+    margin-bottom: 24px;
+}
+div[data-testid="stExpander"] details {
+    border: none;
+}
 </style>
 """
 st.markdown(APP_STYLE_CSS, unsafe_allow_html=True)
@@ -482,7 +556,6 @@ with tab2:
         sheet = get_worksheet()
 
         for index, row in df.iterrows():
-
             try:
                 preco_total_num = float(row.get('Preco Total', 0))
                 val_entrada_num = float(row.get('Valor Entrada', 0))
@@ -496,100 +569,120 @@ with tab2:
                 total_semestral = val_semestral_num * num_semestral_num
 
             except (ValueError, TypeError) as e:
-                st.error(f"Erro ao processar dados da linha {index} (Unidade: {row.get('Unidade', 'N/A')}). Verifique a planilha. Erro: {e}")
+                st.error(f"Erro na linha {index}. Verifique a planilha.")
                 continue
-            with st.container(border=True):
-                st.markdown(f"**{row['Obra']}** | Unidade: **{row['Unidade']}**")
-                cols_header = st.columns(2)
-                cols_header[0].metric("Preço Total", format_currency(preco_total_num))
-                cols_header[1].metric("Entrada", format_currency(val_entrada_num))
+            
+            fmt_preco = format_currency(preco_total_num)
+            fmt_entrada = format_currency(val_entrada_num)
+            fmt_mensal = format_currency(val_mensal_num)
+            fmt_semestral = format_currency(val_semestral_num)
+            
+            card_html = f"""
+            <div class="lavie-card">
+                <div class="card-header">
+                    <span class="card-title">{row['Obra']}</span>
+                    <span class="card-tag">Unidade {row['Unidade']}</span>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Preço Total</span>
+                        <span class="stat-value highlight">{fmt_preco}</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">Entrada</span>
+                        <span class="stat-value">{fmt_entrada}</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">Mensais ({num_mensal_num}x)</span>
+                        <span class="stat-value">{fmt_mensal}</span>
+                        <span class="stat-sub">Total: {format_currency(total_mensal)}</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-label">Semestrais ({num_semestral_num}x)</span>
+                        <span class="stat-value">{fmt_semestral}</span>
+                        <span class="stat-sub">Total: {format_currency(total_semestral)}</span>
+                    </div>
+                </div>
+            </div>
+            """
+            
+            st.markdown(card_html, unsafe_allow_html=True)
+            
+            with st.expander("Ver Detalhes, Gráfico ou Ações"):
+                
+                tab_resumo, tab_acoes = st.tabs(["Gráfico de Composição", "Editar / Excluir"])
 
-                with st.expander("Ver Detalhes, Gráfico ou Ações"):
+                with tab_resumo:
+                    st.markdown("###### Distribuição do Pagamento")
+                    try:
+                        chart_data = pd.DataFrame({
+                            'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
+                            'Valor': [val_entrada_num, total_mensal, total_semestral, val_entrega_num]
+                        })
+                        chart_data = chart_data[chart_data['Valor'] > 0]
 
-                    tab_resumo, tab_acoes = st.tabs(["Resumo e Gráfico", "Editar / Excluir"])
+                        color_scheme = [st.get_option('theme.primaryColor'), '#FFA500', '#FFC04D', '#808080']
 
-                    with tab_resumo:
-                        detail_cols = st.columns(2)
-                        detail_cols[0].metric(
-                            label="Valor Mensal", 
-                            value=format_currency(val_mensal_num), 
-                            delta=f"{num_mensal_num}x"
-                        )
-                        detail_cols[1].metric("Total em Mensais", format_currency(total_mensal))
+                        if not chart_data.empty:
+                            pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=100, innerRadius=65, cornerRadius=4).encode(
+                                theta=alt.Theta("Valor:Q", stack=True),
+                                color=alt.Color("Tipo:N", 
+                                                scale=alt.Scale(domain=['Entrada', 'Mensais', 'Semestrais', 'Entrega'], 
+                                                                range=color_scheme),
+                                                legend=alt.Legend(orient='right')),
+                                tooltip=['Tipo', 'Valor', alt.Tooltip("Valor:Q", format=".1%", title="% do Total")]
+                            ).properties(
+                                height=250
+                            )
+                            st.altair_chart(pie_chart, use_container_width=True)
+                        else:
+                            st.info("Sem dados para gráfico.")
+                            
+                        st.markdown(f"**Pagamento na Entrega:** {format_currency(val_entrega_num)}")
+                        
+                    except Exception as e:
+                        st.error(f"Erro no gráfico: {e}")
 
-                        detail_cols2 = st.columns(2)
-                        detail_cols2[0].metric(
-                            label="Valor Semestral", 
-                            value=format_currency(val_semestral_num), 
-                            delta=f"{num_semestral_num}x"
-                        )
-                        detail_cols2[1].metric("Total em Semestrais", format_currency(total_semestral))
-
-                        st.metric("Entrega", format_currency(val_entrega_num))
-
-                        try:
-                            chart_data = pd.DataFrame({
-                                'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
-                                'Valor': [val_entrada_num, total_mensal, total_semestral, val_entrega_num]
-                            })
-                            chart_data = chart_data[chart_data['Valor'] > 0]
-
-                            color_scheme = [st.get_option('theme.primaryColor'), '#FFA500', '#FFC04D', '#808080']
-
-                            if not chart_data.empty:
-                                pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=120, innerRadius=80).encode(
-                                    theta=alt.Theta("Valor:Q", stack=True),
-                                    color=alt.Color("Tipo:N", 
-                                                    title="Tipo de Pagamento", 
-                                                    scale=alt.Scale(domain=['Entrada', 'Mensais', 'Semestrais', 'Entrega'], 
-                                                                    range=color_scheme)),
-                                    tooltip=['Tipo', 'Valor', alt.Tooltip("Valor:Q", format=".1%", title="% do Total")]
-                                ).properties(
-                                    title="Composição do Valor Total"
-                                )
-                                st.altair_chart(pie_chart, use_container_width=True)
-                            else:
-                                st.info("Não há dados de valor para exibir o gráfico.")
-                        except Exception as e:
-                            st.error(f"Não foi possível gerar o gráfico. {e}")
-
-                    with tab_acoes:
-                        st.markdown("##### Ações")
-
+                with tab_acoes:
+                    col_act_1, col_act_2 = st.columns(2)
+                    
+                    with col_act_1:
                         edit_key = f"edit_{index}_{row['Unidade']}"
-                        if st.button("Editar Simulação", key=edit_key):
+                        if st.button("Editar", key=edit_key, use_container_width=True):
                             if sheet:
                                 try:
                                     cell = sheet.find(row['Data/Hora'])
                                     if cell:
                                         edit_dialog(row.to_dict(), sheet, cell.row)
                                     else:
-                                        st.error("Não foi possível encontrar a linha para editar. Tente recarregar.")
+                                        st.error("Linha não encontrada.")
                                 except Exception as e:
-                                    st.error(f"Erro ao tentar editar: {e}")
+                                    st.error(f"Erro: {e}")
                             else:
-                                st.error("Não foi possível editar: conexão com planilha perdida.")
+                                st.error("Sem conexão.")
 
-                        st.markdown("---") 
-
+                    with col_act_2:
                         delete_key = f"delete_{index}_{row['Unidade']}"
-                        if st.button("Excluir Simulação", key=delete_key, type="primary"):
+                        if st.button("Excluir", key=delete_key, type="primary", use_container_width=True):
                             if sheet:
                                 try:
                                     cell = sheet.find(row['Data/Hora'])
                                     if cell:
                                         sheet.delete_rows(cell.row)
-                                        st.success(f"Simulação da Unidade '{row['Unidade']}' excluída.")
+                                        st.toast(f"Unidade '{row['Unidade']}' excluída.")
                                         st.cache_data.clear()
                                         st.cache_resource.clear()
                                         time.sleep(1)
                                         st.rerun()
                                     else:
-                                        st.error("Não foi possível encontrar a linha para excluir. Tente recarregar.")
+                                        st.error("Linha não encontrada.")
                                 except Exception as e:
-                                    st.error(f"Erro ao excluir linha: {e}")
+                                    st.error(f"Erro: {e}")
                             else:
-                                st.error("Não foi possível excluir: conexão com planilha perdida.")
-
-    else:
-        st.info("Nenhuma simulação salva para exibir.")
+                                st.error("Sem conexão.")
+            
+            st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
