@@ -24,6 +24,19 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
+/* Estilização do Container Nativo (border=True) para parecer o Card Lavie */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+/* Garante que o container ocupe espaço corretamente */
+div[data-testid="stVerticalBlockBorderWrapper"] > div {
+    gap: 1rem;
+}
+
 /* Inputs Glassmorphism */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
     background-color: rgba(255, 255, 255, 0.05) !important;
@@ -42,27 +55,18 @@ label[data-testid="stLabel"] {
     margin-bottom: 6px;
 }
 
-/* Container para agrupar inputs (Dá respiro visual) */
-.input-group {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
 /* Headers de Seção */
 .section-header {
-    display: flex; align-items: center; margin-bottom: 15px;
+    display: flex; align-items: center; margin-bottom: 20px;
 }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
-    color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 5px;
-    border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+    color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 6px;
+    border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (LAVIE PREMIUM) */
+/* CARD DE RESULTADO */
 .lavie-card {
     background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -71,12 +75,8 @@ label[data-testid="stLabel"] {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     margin-top: 10px;
 }
-
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    width: 100%;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%;
 }
 @media (max-width: 800px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 
@@ -85,13 +85,6 @@ label[data-testid="stLabel"] {
 .stat-value { font-size: 1.5rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
 .stat-value.highlight { color: #E37026; }
 .stat-sub { font-size: 0.8rem; color: #555; }
-
-/* Barra de Status */
-.status-bar {
-    margin-top: 25px; padding: 10px 15px; border-radius: 8px;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-    display: flex; align-items: center; justify-content: space-between;
-}
 </style>
 """
 st.markdown(APP_STYLE_CSS, unsafe_allow_html=True)
@@ -387,29 +380,22 @@ with tab1:
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
     
-    with st.container():
-        st.markdown('<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05);">', unsafe_allow_html=True)
+    with st.container(border=True):
+        col_dados, col_prazos = st.columns([1.2, 1])
         
-        col_dados_1, col_dados_2 = st.columns([1, 1])
-        
-        with col_dados_1:
+        with col_dados:
             render_header("apartment", "Dados da Unidade")
             unidade = st.text_input("Unidade / Sala", key="main_unidade")
             preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
             
-        with col_dados_2:
+        with col_prazos:
             render_header("calendar_month", "Configuração de Prazos")
-            c_prazo_in = st.columns(2)
-            num_mensal = c_prazo_in[0].number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-            num_semestral = c_prazo_in[1].number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
-
-        st.markdown('</div>', unsafe_allow_html=True)
+            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+            num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    with st.container():
-        st.markdown('<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05);">', unsafe_allow_html=True)
-        
+    with st.container(border=True):
         render_header("pie_chart", "Distribuição do Fluxo (%)")
 
         if "total_percent" not in st.session_state:
@@ -432,12 +418,11 @@ with tab1:
         total_percent = st.session_state.total_percent
         color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
         icon_st = "check_circle" if total_percent == 100 else "warning"
-        msg_st = "Fluxo validado" if total_percent == 100 else "Ajuste para 100%"
         
         st.markdown(f"""
-        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
-            <span style="font-size: 0.8rem; color: #666;">Status do Fechamento</span>
-            <div style="display:flex; align-items:center; color: {color_st};">
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
+            <div style="display:flex; align-items:center; color: {color_st}; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;">
                 <span class="material-symbols-rounded" style="font-size:18px; margin-right:6px;">{icon_st}</span>
                 <span style="font-weight:600;">{total_percent:.1f}%</span>
             </div>
@@ -499,7 +484,7 @@ with tab1:
             st.error("Verifique os dados (Unidade, Preço e Percentual 100%).")
         else:
             dt_now = datetime.now().strftime("%d/%m/%Y")
-            summary = f"*Simulação {obra_selecionada} - Unid {unidade}*\n\n💰 Valor: {format_currency(preco_total)}\n\n🔹 Entrada: {f_ent}\n🔹 Mensais: {num_mensal}x {f_men}\n🔹 Semestrais: {num_semestral}x {f_sem}\n🔹 Entrega: {f_entg}\n\n📅 {dt_now}"
+            summary = f"*Simulação {obra_selecionada} - Unid {unidade}*\n\nValor: {format_currency(preco_total)}\n\nEntrada: {f_ent}\nMensais: {num_mensal}x {f_men}\nSemestrais: {num_semestral}x {f_sem}\nEntrega: {f_entg}\n\n{dt_now}"
             st.session_state.summary_text = summary
             st.session_state.data_to_save = [
                 obra_selecionada, unidade, to_sheet_string(preco_total),
@@ -511,7 +496,7 @@ with tab1:
             ]
 
     if st.session_state.summary_text:
-        st.text_area("Copiar:", value=st.session_state.summary_text, height=150)
+        st.text_area("Copiar:", value=st.session_state.summary_text, height=300, key="summary_display")
         if st.button("Salvar na Planilha", use_container_width=True):
              try:
                 sheet = get_worksheet()
