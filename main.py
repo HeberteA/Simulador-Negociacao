@@ -25,16 +25,15 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* --- AQUI ESTA A CORREÇÃO DEFINITIVA DO GRADIENTE --- */
-/* Alvo: st.container(border=True) */
+/* --- CORREÇÃO BRUTA PARA OS CONTAINERS SUPERIORES --- */
+
+/* 1. Aplica o Gradiente no Container (Wrapper) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* Força o gradiente EXATAMENTE igual ao .lavie-card */
+    /* O mesmo gradiente exato do Card de Resultado */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    /* Borda fina e elegante */
+    /* Mesma borda e sombra */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    
-    /* Sombra e Arredondamento */
     border-radius: 16px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
     
@@ -42,7 +41,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     margin-bottom: 24px !important;
 }
 
-/* Remove qualquer fundo dos filhos diretos para o gradiente brilhar */
+/* 2. FORÇA TRANSPARÊNCIA NOS FILHOS (Isso que estava tapando o gradiente) */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
     background-color: transparent !important;
 }
@@ -67,7 +66,7 @@ div[data-baseweb="textarea"] > div {
     color: white !important;
 }
 
-/* Cores dos Textos dos Inputs */
+/* Texto dos Inputs */
 div[data-testid="stNumberInput"] input, 
 div[data-testid="stTextInput"] input {
     color: white !important;
@@ -90,9 +89,8 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (HTML Manual) */
+/* CARD DE RESULTADO (HTML Manual - Já estava funcionando) */
 .lavie-card {
-    /* Mesmo gradiente para manter consistência */
     background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
@@ -129,7 +127,6 @@ def format_currency(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def to_sheet_string(value):
-    """Converte um float (ex: 5555.56) para uma string PT-BR (ex: "5555,56")"""
     return f"{value:.2f}".replace('.', ',')
 
 @st.cache_resource(ttl=60)
@@ -148,20 +145,8 @@ def get_worksheet():
         spreadsheet = client.open_by_key(spreadsheet_key)
         worksheet = spreadsheet.worksheet(worksheet_name)
         return worksheet
-    except gspread.exceptions.SpreadsheetNotFound:
-        st.error("Erro: Planilha não encontrada. Verifique a 'spreadsheet_key' nos seus Segredos.")
-        return None
-    except gspread.exceptions.WorksheetNotFound:
-        st.error(f"Erro: Aba '{worksheet_name}' não encontrada. Verifique o 'worksheet_name' nos seus Segredos.")
-        return None
-    except KeyError as e:
-        if "spreadsheet_info" in str(e):
-             st.error("Erro de Segredo: A seção '[spreadsheet_info]' está faltando no seu secrets.toml. Verifique o modelo.")
-        else:
-             st.error(f"Erro de Segredo: Chave não encontrada: {e}. Verifique seu secrets.toml.")
-        return None
     except Exception as e:
-        st.error(f"Erro ao autenticar ou abrir a planilha: {e}")
+        st.error(f"Erro na planilha: {e}")
         return None
 
 @st.cache_data(ttl=5) 
@@ -202,17 +187,13 @@ def set_default_values():
         "perc_semestral": 20.0,
         "perc_entrega": 20.0,
     }
-
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
-
     if "total_percent" not in st.session_state:
         st.session_state.total_percent = (
-            defaults["perc_entrada"] +
-            defaults["perc_mensal"] +
-            defaults["perc_semestral"] +
-            defaults["perc_entrega"]
+            defaults["perc_entrada"] + defaults["perc_mensal"] +
+            defaults["perc_semestral"] + defaults["perc_entrega"]
         )
 
 def reset_to_default_values():
@@ -221,10 +202,8 @@ def reset_to_default_values():
         "perc_entrada", "perc_mensal", "perc_semestral", "perc_entrega",
         "total_percent", "summary_text", "data_to_save"
     ]
-
     for key in keys_to_clear:
-        if key in st.session_state:
-            del st.session_state[key]
+        if key in st.session_state: del st.session_state[key]
 
 
 @st.dialog("Editar Simulação")
@@ -256,50 +235,28 @@ def edit_dialog(row_data, sheet, sheet_row_index):
         st.markdown("##### Nº de Parcelas")
         num_mensal = st.number_input(
             "Nº de Parcelas Mensais", 
-            min_value=0, 
-            step=1, 
+            min_value=0, step=1, 
             value=int(row_data.get('Nº Mensal', 36)), 
             key="edit_num_mensal"
         )
         num_semestral = st.number_input(
             "Nº de Parcelas Semestrais", 
-            min_value=0, 
-            step=1, 
+            min_value=0, step=1, 
             value=int(row_data.get('Nº Semestral', 6)), 
             key="edit_num_semestral"
         )
 
     with form_cols[1]:
-        st.markdown("##### Definição do Fluxo de Pagamento (%)")
-
-        perc_entrada = st.number_input(
-            "Entrada (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Entrada', 0)), 
-            step=0.5, key="edit_perc_entrada", format="%.2f", on_change=atualizar_percentual_edit
-        )
-        perc_mensal = st.number_input(
-            "Total Parcelas Mensais (%)", min_value=0.0, max_value=100.0, 
-            value=float(row_data.get('% Mensal', 0)), 
-            step=0.5, key="edit_perc_mensal", format="%.2f", on_change=atualizar_percentual_edit
-        )
-        perc_semestral = st.number_input(
-            "Total Parcelas Semestrais (%)", min_value=0.0, max_value=100.0, 
-            value=float(row_data.get('% Semestral', 0)), 
-            step=0.5, key="edit_perc_semestral", format="%.2f", on_change=atualizar_percentual_edit
-        )
-        perc_entrega = st.number_input(
-            "Entrega (%)", min_value=0.0, max_value=100.0,
-            value=float(row_data.get('% Entrega', 0)), 
-            step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit
-        )
+        st.markdown("##### Definição do Fluxo (%)")
+        perc_entrada = st.number_input("Entrada (%)", 0.0, 100.0, value=float(row_data.get('% Entrada', 0)), step=0.5, key="edit_perc_entrada", format="%.2f", on_change=atualizar_percentual_edit)
+        perc_mensal = st.number_input("Mensais (%)", 0.0, 100.0, value=float(row_data.get('% Mensal', 0)), step=0.5, key="edit_perc_mensal", format="%.2f", on_change=atualizar_percentual_edit)
+        perc_semestral = st.number_input("Semestrais (%)", 0.0, 100.0, value=float(row_data.get('% Semestral', 0)), step=0.5, key="edit_perc_semestral", format="%.2f", on_change=atualizar_percentual_edit)
+        perc_entrega = st.number_input("Entrega (%)", 0.0, 100.0, value=float(row_data.get('% Entrega', 0)), step=0.5, key="edit_perc_entrega", format="%.2f", on_change=atualizar_percentual_edit)
 
         total_percent = st.session_state.edit_total_percent
-        if total_percent > 100.0:
-            st.error(f"Percentual excede 100%! ({total_percent:.1f}%)")
-        elif total_percent < 100.0:
-            st.warning(f"Percentual não fecha 100%. ({total_percent:.1f}%)")
-        else:
-            st.success(f"Percentual fechado em 100%!")
+        if total_percent > 100.0: st.error(f"Percentual excede 100%! ({total_percent:.1f}%)")
+        elif total_percent < 100.0: st.warning(f"Percentual não fecha 100%. ({total_percent:.1f}%)")
+        else: st.success(f"Percentual fechado em 100%!")
 
     st.markdown("---")
 
@@ -311,50 +268,29 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             val_total_mensal = (preco_total * perc_mensal) / 100
             val_total_semestral = (preco_total * perc_semestral) / 100
             val_entrega = (preco_total * perc_entrega) / 100
-
             val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
             val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
             linha_atualizada = [
-                row_data['Obra'], 
-                row_data['Unidade'], 
-                to_sheet_string(preco_total),
-                to_sheet_string(perc_entrada), 
-                to_sheet_string(val_entrada),
-                to_sheet_string(perc_mensal), 
-                num_mensal,
-                to_sheet_string(val_por_mensal),
-                to_sheet_string(perc_semestral), 
-                num_semestral, 
-                to_sheet_string(val_por_semestral),
-                to_sheet_string(perc_entrega), 
-                to_sheet_string(val_entrega),
+                row_data['Obra'], row_data['Unidade'], to_sheet_string(preco_total),
+                to_sheet_string(perc_entrada), to_sheet_string(val_entrada),
+                to_sheet_string(perc_mensal), num_mensal,
+                to_sheet_string(val_por_mensal), to_sheet_string(perc_semestral), 
+                num_semestral, to_sheet_string(val_por_semestral),
+                to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
                 row_data['Data/Hora']
             ]
-
             try:
                 range_to_update = f'A{sheet_row_index}:N{sheet_row_index}'
                 sheet.update(range_to_update, [linha_atualizada], value_input_option='USER_ENTERED')
-
                 st.toast("Alterações salvas com sucesso!")
-
-                st.cache_data.clear()
-                st.cache_resource.clear()
-
+                carregar_dados_planilha.clear()
                 keys_to_delete = [k for k in st.session_state if k.startswith('edit_')]
-                for k in keys_to_delete:
-                    del st.session_state[k]
-
-                return True
+                for k in keys_to_delete: del st.session_state[k]
+                time.sleep(1)
+                st.rerun()
             except Exception as e:
                 st.error(f"Erro ao salvar: {e}")
-                return False
-
-    if st.button("Cancelar", use_container_width=True):
-        keys_to_delete = [k for k in st.session_state if k.startswith('edit_')]
-        for k in keys_to_delete:
-            del st.session_state[k]
-        return True
 
 set_default_values()
 
@@ -362,37 +298,20 @@ try:
     col1, col2, col3 = st.columns([1, 4, 1])
     with col2:
         st.image("LavieC.png", width=750)
-except FileNotFoundError:
-    st.warning("Arquivo 'LavieC.png' não encontrado. Coloque-o na mesma pasta do app.py.")
-except Exception as e:
-    st.error(f"Não foi possível carregar a imagem: {e}")
-
+except:
+    pass
 
 st.title("Simulador de Negociação")
 st.markdown("---")
 
-lista_obras = [
-    "Burj Lavie",
-    "Lavie Areia Dourada",
-    "The Well By OM25 e Lavie",
-    "Lavie Camboinha",
-    "Arc Space"
-]
-
-obra_selecionada = st.selectbox(
-    "Escolha a Obra para simular:", 
-    lista_obras, 
-    key="obra", 
-    label_visibility="collapsed"
-)
+lista_obras = ["Burj Lavie", "Lavie Areia Dourada", "The Well By OM25 e Lavie", "Lavie Camboinha", "Arc Space"]
+obra_selecionada = st.selectbox("Escolha a Obra para simular:", lista_obras, key="obra", label_visibility="collapsed")
 
 tab1, tab2 = st.tabs(["Simular Negociação", "Simulações Salvas"])
 
 with tab1:
-    if "summary_text" not in st.session_state:
-        st.session_state.summary_text = ""
-    if "data_to_save" not in st.session_state:
-        st.session_state.data_to_save = None
+    if "summary_text" not in st.session_state: st.session_state.summary_text = ""
+    if "data_to_save" not in st.session_state: st.session_state.data_to_save = None
 
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
@@ -414,18 +333,12 @@ with tab1:
 
     with st.container(border=True):
         render_header("pie_chart", "Distribuição do Fluxo (%)")
-
-        if "total_percent" not in st.session_state:
-            st.session_state.total_percent = 0.0
-
+        if "total_percent" not in st.session_state: st.session_state.total_percent = 0.0
         def atualizar_percentual():
             st.session_state.total_percent = (
-                st.session_state.get('perc_entrada', 0.0) +
-                st.session_state.get('perc_mensal', 0.0) +
-                st.session_state.get('perc_semestral', 0.0) +
-                st.session_state.get('perc_entrega', 0.0)
+                st.session_state.get('perc_entrada', 0.0) + st.session_state.get('perc_mensal', 0.0) +
+                st.session_state.get('perc_semestral', 0.0) + st.session_state.get('perc_entrega', 0.0)
             )
-
         c_flow = st.columns(4)
         perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
         perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
@@ -435,7 +348,6 @@ with tab1:
         total_percent = st.session_state.total_percent
         color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
         icon_st = "check_circle" if total_percent == 100 else "warning"
-
         st.markdown(f"""
         <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
@@ -450,15 +362,13 @@ with tab1:
     val_total_mensal = (preco_total * perc_mensal) / 100
     val_total_semestral = (preco_total * perc_semestral) / 100
     val_entrega = (preco_total * perc_entrega) / 100
-
     val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
     val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # CARD DE RESULTADO (Manual)
+    # Resultado Financeiro (Card HTML)
     render_header("analytics", "Resultado Financeiro")
-
     f_ent = format_currency(val_entrada)
     f_men = format_currency(val_por_mensal)
     f_t_men = format_currency(val_total_mensal)
@@ -493,17 +403,12 @@ with tab1:
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
-        
-        if not unidade:
-            st.error("Preencha a Unidade.")
-        elif preco_total <= 0:
-            st.error("Preencha o Preço Total.")
-        elif round(st.session_state.total_percent, 1) != 100.0:
-            st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
+        if not unidade: st.error("Preencha a Unidade.")
+        elif preco_total <= 0: st.error("Preencha o Preço Total.")
+        elif round(st.session_state.total_percent, 1) != 100.0: st.error(f"Ajuste o percentual para 100% (Atual: {st.session_state.total_percent:.1f}%).")
         else:
             data_hora_atual = datetime.now().strftime("%Y-%m-%d")
             summary = f"""
@@ -532,37 +437,29 @@ Data: {data_hora_atual}
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
         st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
-
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
-            with st.spinner("Conectando ao Google Sheets..."):
+            with st.spinner("Salvando..."):
                 try:
                     sheet = get_worksheet()
                     if sheet and st.session_state.data_to_save:
                         nova_linha = st.session_state.data_to_save
                         nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
-            
-                        st.toast("Simulação salva com sucesso!", icon="✅")
+                        st.toast("Salvo com sucesso!", icon="✅")
                         carregar_dados_planilha.clear()
                         reset_to_default_values() 
                         time.sleep(1)
                         st.rerun()
-                        
-                    else:
-                        st.error("Erro ao conectar com a planilha.")
-                except Exception as e:
-                    st.error(f"Erro: {e}")
-
+                    else: st.error("Erro de conexão.")
+                except Exception as e: st.error(f"Erro: {e}")
 
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
-
     df = carregar_dados_planilha()
 
     if df is not None and not df.empty:
         df = df.sort_values(by="Data/Hora", ascending=False)
         sheet = get_worksheet()
-
         for index, row in df.iterrows():
             try:
                 preco_total_num = float(row.get('Preco Total', 0))
@@ -572,19 +469,14 @@ with tab2:
                 val_semestral_num = float(row.get('Valor Semestral', 0))
                 num_semestral_num = int(row.get('Nº Semestral', 0))
                 val_entrega_num = float(row.get('Valor Entrega', 0))
-
                 total_mensal = val_mensal_num * num_mensal_num
                 total_semestral = val_semestral_num * num_semestral_num
-
-            except (ValueError, TypeError) as e:
-                st.error(f"Erro na linha {index}: {e}")
-                continue
+            except: continue
             
             fmt_preco = format_currency(preco_total_num)
             fmt_entrada = format_currency(val_entrada_num)
             fmt_mensal = format_currency(val_mensal_num)
             fmt_semestral = format_currency(val_semestral_num)
-            fmt_entrega = format_currency(val_entrega_num)
             
             card_html = f"""
 <div class="lavie-card" style="margin-bottom: 0px;">
@@ -593,50 +485,29 @@ with tab2:
     <span style="background:rgba(227,112,38,0.2); color:#E37026; padding:4px 10px; border-radius:12px; font-size:0.8rem;">Unidade {row['Unidade']}</span>
 </div>
 <div class="stats-grid">
-    <div class="stat-item">
-        <span class="stat-label">Preço Total</span>
-        <span class="stat-value highlight">{fmt_preco}</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Entrada</span>
-        <span class="stat-value">{fmt_entrada}</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Mensais ({num_mensal_num}x)</span>
-        <span class="stat-value">{fmt_mensal}</span>
-        <span class="stat-sub">Total: {format_currency(total_mensal)}</span>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Semestrais ({num_semestral_num}x)</span>
-        <span class="stat-value">{fmt_semestral}</span>
-        <span class="stat-sub">Total: {format_currency(total_semestral)}</span>
-    </div>
+    <div class="stat-item"><span class="stat-label">Preço Total</span><span class="stat-value highlight">{fmt_preco}</span></div>
+    <div class="stat-item"><span class="stat-label">Entrada</span><span class="stat-value">{fmt_entrada}</span></div>
+    <div class="stat-item"><span class="stat-label">Mensais ({num_mensal_num}x)</span><span class="stat-value">{fmt_mensal}</span><span class="stat-sub">Total: {format_currency(total_mensal)}</span></div>
+    <div class="stat-item"><span class="stat-label">Semestrais ({num_semestral_num}x)</span><span class="stat-value">{fmt_semestral}</span><span class="stat-sub">Total: {format_currency(total_semestral)}</span></div>
 </div>
 </div>
 """
             st.markdown(card_html, unsafe_allow_html=True)
             st.markdown("")
-            
-            with st.expander("Opções e Detalhes"):
-                c_act1, c_act2, c_act3, c_act4 = st.columns([1, 2, 2, 1])
-                with c_act1:
-                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}"):
-                        if sheet:
-                            cell = sheet.find(row['Data/Hora'])
-                            if cell: edit_dialog(row.to_dict(), sheet, cell.row)
-
-                with c_act4:
-                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
-                        if sheet:
-                            cell = sheet.find(row['Data/Hora'])
-                            if cell:
-                                sheet.delete_rows(cell.row)
-                                st.toast("Simulação excluída!", icon="🗑️")
-                                carregar_dados_planilha.clear() 
-                                time.sleep(1)
-                                st.rerun() 
-
+            with st.expander("Opções"):
+                c1, c2 = st.columns(2)
+                if c1.button(f"Editar {row['Unidade']}", key=f"ed_{index}"):
+                    if sheet: 
+                         cell = sheet.find(row['Data/Hora'])
+                         if cell: edit_dialog(row.to_dict(), sheet, cell.row)
+                if c2.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
+                    if sheet:
+                        cell = sheet.find(row['Data/Hora'])
+                        if cell:
+                            sheet.delete_rows(cell.row)
+                            st.toast("Excluído!")
+                            carregar_dados_planilha.clear()
+                            time.sleep(1)
+                            st.rerun()
             st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
-
-    else:
-        st.info("Nenhuma simulação salva.")
+    else: st.info("Nenhuma simulação salva.")
