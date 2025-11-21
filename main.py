@@ -442,6 +442,7 @@ with tab1:
     st.markdown("<br>", unsafe_allow_html=True)
     with st.container(border=True):
         render_header("analytics", "Resultado Financeiro")
+    with st.container(border=True):
 
         f_ent = format_currency(val_entrada)
         f_men = format_currency(val_por_mensal)
@@ -497,9 +498,9 @@ Unidade: {unidade}
 *Preço Total:* {format_currency(preco_total)}
 
 *Entrada ({perc_entrada:.1f}%):* {val_entrada}
-*Mensais ({num_mensal}x):* {s_mensal} (Total: {val_total_mensal})
-*Semestrais ({num_semestral}x):* {s_semestral} (Total: {val_total_semestral})
-*Entrega ({perc_entrega:.1f}%):* {sval_entrega}
+*Mensais ({num_mensal}x):* {val_por_mensal} (Total: {val_total_mensal})
+*Semestrais ({num_semestral}x):* {val_por_semestral} (Total: {val_total_semestral})
+*Entrega ({perc_entrega:.1f}%):* {val_entrega}
 
 Data: {data_hora_atual}
 """
