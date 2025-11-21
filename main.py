@@ -482,7 +482,7 @@ with tab1:
     </div>
     </div>
     """
-    st.markdown(card_html, unsafe_allow_html=True)
+        st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -497,15 +497,15 @@ with tab1:
         else:
             data_hora_atual = datetime.now().strftime("%Y-%m-%d")
             summary = f"""
-*Resumo da Simulação - {obra_selecionada}*
+Resumo da Simulação - {obra_selecionada}
 Unidade: {unidade}
 
-*Preço Total:* {format_currency(preco_total)}
+Preço Total: {format_currency(preco_total)}
 
-*Entrada ({perc_entrada:.1f}%):* {val_entrada}
-*Mensais ({num_mensal}x):* {val_por_mensal} (Total: {val_total_mensal})
-*Semestrais ({num_semestral}x):* {val_por_semestral} (Total: {val_total_semestral})
-*Entrega ({perc_entrega:.1f}%):* {val_entrega}
+Entrada ({perc_entrada:.1f}%): {val_entrada}
+Mensais ({num_mensal}x): {val_por_mensal} (Total: {val_total_mensal})
+Semestrais ({num_semestral}x): {val_por_semestral} (Total: {val_total_semestral})
+Entrega ({perc_entrega:.1f}%): {val_entrega}
 
 Data: {data_hora_atual}
 """
