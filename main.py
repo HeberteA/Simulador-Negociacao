@@ -442,7 +442,6 @@ with tab1:
     st.markdown("<br>", unsafe_allow_html=True)
     with st.container(border=True):
         render_header("analytics", "Resultado Financeiro")
-    with st.container(border=True):
 
         f_ent = format_currency(val_entrada)
         f_men = format_currency(val_por_mensal)
@@ -516,7 +515,7 @@ Data: {data_hora_atual}
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=600, key="summary_display")
 
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Salvando..."):
