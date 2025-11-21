@@ -342,19 +342,19 @@ with tab1:
     perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
     perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
 
-        tot = st.session_state.total_percent
-        color = "#09ab3b" if tot == 100 else "#ff4b4b"
-        icon = "check_circle" if tot == 100 else "warning"
+    tot = st.session_state.total_percent
+    color = "#09ab3b" if tot == 100 else "#ff4b4b"
+    icon = "check_circle" if tot == 100 else "warning"
         
-        st.markdown(f"""
-            <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
-                <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
-                <div style="display:flex; align-items:center; color: {color_st}; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;">
-                    <span class="material-symbols-rounded" style="font-size:18px; margin-right:6px;">{icon_st}</span>
-                    <span style="font-weight:600;">{total_percent:.1f}%</span>
-                </div>
+    st.markdown(f"""
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
+            <div style="display:flex; align-items:center; color: {color_st}; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 20px;">
+                <span class="material-symbols-rounded" style="font-size:18px; margin-right:6px;">{icon_st}</span>
+                <span style="font-weight:600;">{total_percent:.1f}%</span>
             </div>
-        """, unsafe_allow_html=True)
+        </div>
+    """, unsafe_allow_html=True)
 
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
