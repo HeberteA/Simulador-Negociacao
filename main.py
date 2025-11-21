@@ -447,80 +447,59 @@ with tab1:
         st.markdown('</div>', unsafe_allow_html=True)
 
     
-    st.markdown("---")
+    val_entrada = (preco_total * perc_entrada) / 100
+    val_total_mensal = (preco_total * perc_mensal) / 100
+    val_total_semestral = (preco_total * perc_semestral) / 100
+    val_entrega = (preco_total * perc_entrega) / 100
 
-    val_entrada = round((preco_total * perc_entrada) / 100, 2)
-    val_total_mensal = round((preco_total * perc_mensal) / 100, 2)
-    val_total_semestral = round((preco_total * perc_semestral) / 100, 2)
-    val_entrega = round((preco_total * perc_entrega) / 100, 2)
+    val_por_mensal = (val_total_mensal / num_mensal) if num_mensal > 0 else 0
+    val_por_semestral = (val_total_semestral / num_semestral) if num_semestral > 0 else 0
 
-    val_por_mensal = round((val_total_mensal / num_mensal), 2) if num_mensal > 0 else 0
-    val_por_semestral = round((val_total_semestral / num_semestral), 2) if num_semestral > 0 else 0
+    st.markdown("<br>", unsafe_allow_html=True)
+    render_header("analytics", "Resultado Financeiro")
 
-    
-    render_header("analytics", "Resultado da Simulação")
-    
-    s_entrada = format_currency(val_entrada)
-    s_mensal = format_currency(val_por_mensal)
-    s_total_mensal = format_currency(val_total_mensal)
-    s_semestral = format_currency(val_por_semestral)
-    s_total_semestral = format_currency(val_total_semestral)
-    s_entrega = format_currency(val_entrega)
-    
+    f_ent = format_currency(val_entrada)
+    f_men = format_currency(val_por_mensal)
+    f_t_men = format_currency(val_total_mensal)
+    f_sem = format_currency(val_por_semestral)
+    f_t_sem = format_currency(val_total_semestral)
+    f_entg = format_currency(val_entrega)
+
     card_html = f"""
 <div class="lavie-card">
-    <div class="stats-grid">
-        <div class="stat-item">
-            <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
-            <span class="stat-value highlight">{s_entrada}</span>
-            <span class="stat-sub">Ato</span>
-        </div>
-        
-        <div class="stat-item">
-            <span class="stat-label">Mensais ({num_mensal}x)</span>
-            <span class="stat-value">{s_mensal}</span>
-            <span class="stat-sub">Total: {s_total_mensal}</span>
-        </div>
-        
-        <div class="stat-item">
-            <span class="stat-label">Semestrais ({num_semestral}x)</span>
-            <span class="stat-value">{s_semestral}</span>
-            <span class="stat-sub">Total: {s_total_semestral}</span>
-        </div>
-        
-        <div class="stat-item">
-            <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
-            <span class="stat-value">{s_entrega}</span>
-            <span class="stat-sub">Chaves</span>
-        </div>
-    </div>
+<div class="stats-grid">
+<div class="stat-item">
+    <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
+    <span class="stat-value highlight">{f_ent}</span>
+    <span class="stat-sub">Pagamento Ato</span>
+</div>
+<div class="stat-item">
+    <span class="stat-label">Mensais ({num_mensal}x)</span>
+    <span class="stat-value">{f_men}</span>
+    <span class="stat-sub">Total: {f_t_men}</span>
+</div>
+<div class="stat-item">
+    <span class="stat-label">Semestrais ({num_semestral}x)</span>
+    <span class="stat-value">{f_sem}</span>
+    <span class="stat-sub">Total: {f_t_sem}</span>
+</div>
+<div class="stat-item">
+    <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
+    <span class="stat-value">{f_entg}</span>
+    <span class="stat-sub">Pagamento Final</span>
+</div>
+</div>
 </div>
 """
     st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
-        if not unidade:
-            st.error("Preencha a Unidade.")
-        elif preco_total <= 0:
-            st.error("Preencha o Preço Total.")
-        elif round(total_percent, 1) != 100.0:
-            st.error(f"Ajuste o percentual para 100% (Atual: {total_percent:.1f}%).")
+    if st.button("Gerar Resumo", type="primary", use_container_width=True):
+        if not unidade or preco_total <= 0 or round(total, 1) != 100.0:
+            st.error("Verifique os dados (Unidade, Preço e Percentual 100%).")
         else:
-            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
-            summary = f"""
-*Resumo da Simulação - {obra_selecionada}*
-Unidade: {unidade}
-
-*Preço Total:* {format_currency(preco_total)}
-
-🔹 *Entrada ({perc_entrada:.1f}%):* {s_entrada}
-🔹 *Mensais ({num_mensal}x):* {s_mensal} (Total: {s_total_mensal})
-🔹 *Semestrais ({num_semestral}x):* {s_semestral} (Total: {s_total_semestral})
-🔹 *Entrega ({perc_entrega:.1f}%):* {s_entrega}
-
-Data: {data_hora_atual}
-"""
+            dt_now = datetime.now().strftime("%d/%m/%Y")
+            summary = f"*Simulação {obra_selecionada} - Unid {unidade}*\n\n💰 Valor: {format_currency(preco_total)}\n\n🔹 Entrada: {f_ent}\n🔹 Mensais: {num_mensal}x {f_men}\n🔹 Semestrais: {num_semestral}x {f_sem}\n🔹 Entrega: {f_entg}\n\n📅 {dt_now}"
             st.session_state.summary_text = summary
             st.session_state.data_to_save = [
                 obra_selecionada, unidade, to_sheet_string(preco_total),
@@ -528,29 +507,24 @@ Data: {data_hora_atual}
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
                 to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
-                data_hora_atual
+                datetime.now().strftime("%Y-%m-%d")
             ]
 
-    if st.session_state.get("summary_text"):
-        st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=250, key="summary_display")
-
-        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
-            with st.spinner("Salvando..."):
-                try:
-                    sheet = get_worksheet()
-                    if sheet and st.session_state.data_to_save:
-                        nova_linha = st.session_state.data_to_save
-                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
-                        sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
-                        st.toast("Salvo com sucesso!", icon="✅")
-                        reset_to_default_values() 
-                        time.sleep(1)
-                        st.rerun()
-                    else:
-                        st.error("Erro ao conectar com a planilha.")
-                except Exception as e:
-                    st.error(f"Erro: {e}")
+    if st.session_state.summary_text:
+        st.text_area("Copiar:", value=st.session_state.summary_text, height=150)
+        if st.button("Salvar na Planilha", use_container_width=True):
+             try:
+                sheet = get_worksheet()
+                if sheet:
+                    row = st.session_state.data_to_save
+                    row[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    sheet.append_row(row, value_input_option='USER_ENTERED')
+                    st.success("Salvo!")
+                    time.sleep(1)
+                    reset_to_default_values()
+                    st.rerun()
+             except Exception as e:
+                st.error(f"Erro: {e}")
                     
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
