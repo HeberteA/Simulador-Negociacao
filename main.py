@@ -24,20 +24,27 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* Estilização do Container Nativo (border=True) para parecer o Card Lavie */
+/* --- CORREÇÃO DO RESUMO CORTADO --- */
+/* Garante que a caixa de texto (textarea) tenha altura automática e não fixa */
+div[data-baseweb="textarea"] > div {
+    height: auto !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-radius: 8px !important;
+}
+
+/* Estilo das Caixas (Containers) */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background-color: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 16px !important;
     padding: 24px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-/* Garante que o container ocupe espaço corretamente */
-div[data-testid="stVerticalBlockBorderWrapper"] > div {
-    gap: 1rem;
+    margin-bottom: 20px;
 }
 
-/* Inputs Glassmorphism */
+/* Inputs Normais (Texto e Numero) - Altura Fixa 48px */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -45,6 +52,7 @@ div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-base
     border-radius: 8px !important;
     height: 48px;
 }
+
 div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     color: white !important;
     font-family: 'Inter', sans-serif;
@@ -55,10 +63,8 @@ label[data-testid="stLabel"] {
     margin-bottom: 6px;
 }
 
-/* Headers de Seção */
-.section-header {
-    display: flex; align-items: center; margin-bottom: 20px;
-}
+/* Headers */
+.section-header { display: flex; align-items: center; margin-bottom: 15px; }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
     color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 6px;
@@ -515,7 +521,7 @@ Data: {data_hora_atual}
 
     if st.session_state.get("summary_text"):
         st.markdown("##### Resumo Pronto")
-        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=600, key="summary_display")
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
 
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Salvando..."):
@@ -542,7 +548,6 @@ with tab2:
 
     if df is not None and not df.empty:
         df = df.sort_values(by="Data/Hora", ascending=False)
-
         sheet = get_worksheet()
 
         for index, row in df.iterrows():
@@ -559,120 +564,64 @@ with tab2:
                 total_semestral = val_semestral_num * num_semestral_num
 
             except (ValueError, TypeError) as e:
-                st.error(f"Erro na linha {index}. Verifique a planilha.")
+                st.error(f"Erro na linha {index}: {e}")
                 continue
-
+            
             fmt_preco = format_currency(preco_total_num)
             fmt_entrada = format_currency(val_entrada_num)
             fmt_mensal = format_currency(val_mensal_num)
             fmt_semestral = format_currency(val_semestral_num)
-
+            fmt_entrega = format_currency(val_entrega_num)
+            
             card_html = f"""
-            <div class="lavie-card">
-                <div class="card-header">
-                    <span class="card-title">{row['Obra']}</span>
-                    <span class="card-tag">Unidade {row['Unidade']}</span>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">Preço Total</span>
-                        <span class="stat-value highlight">{fmt_preco}</span>
-                    </div>
-                    
-                    <div class="stat-item">
-                        <span class="stat-label">Entrada</span>
-                        <span class="stat-value">{fmt_entrada}</span>
-                    </div>
-                    
-                    <div class="stat-item">
-                        <span class="stat-label">Mensais ({num_mensal_num}x)</span>
-                        <span class="stat-value">{fmt_mensal}</span>
-                        <span class="stat-sub">Total: {format_currency(total_mensal)}</span>
-                    </div>
-                    
-                    <div class="stat-item">
-                        <span class="stat-label">Semestrais ({num_semestral_num}x)</span>
-                        <span class="stat-value">{fmt_semestral}</span>
-                        <span class="stat-sub">Total: {format_currency(total_semestral)}</span>
-                    </div>
-                </div>
-            </div>
-            """
-
+<div class="lavie-card" style="margin-bottom: 0px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+    <span style="font-size:1.1rem; font-weight:bold; color:#fff;">{row['Obra']}</span>
+    <span style="background:rgba(227,112,38,0.2); color:#E37026; padding:4px 10px; border-radius:12px; font-size:0.8rem;">Unidade {row['Unidade']}</span>
+</div>
+<div class="stats-grid">
+    <div class="stat-item">
+        <span class="stat-label">Preço Total</span>
+        <span class="stat-value highlight">{fmt_preco}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Entrada</span>
+        <span class="stat-value">{fmt_entrada}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Mensais ({num_mensal_num}x)</span>
+        <span class="stat-value">{fmt_mensal}</span>
+        <span class="stat-sub">Total: {format_currency(total_mensal)}</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Semestrais ({num_semestral_num}x)</span>
+        <span class="stat-value">{fmt_semestral}</span>
+        <span class="stat-sub">Total: {format_currency(total_semestral)}</span>
+    </div>
+</div>
+</div>
+"""
             st.markdown(card_html, unsafe_allow_html=True)
+            
+            with st.expander("Opções e Detalhes"):
+                c_act1, c_act2 = st.columns(2)
+                with c_act1:
+                     if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}"):
+                        if sheet:
+                            cell = sheet.find(row['Data/Hora'])
+                            if cell: edit_dialog(row.to_dict(), sheet, cell.row)
 
-            with st.expander("Ver Detalhes, Gráfico ou Ações"):
+                with c_act2:
+                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
+                        if sheet:
+                            cell = sheet.find(row['Data/Hora'])
+                            if cell:
+                                sheet.delete_rows(cell.row)
+                                st.success("Excluído!")
+                                time.sleep(1)
+                                st.rerun()
 
-                tab_resumo, tab_acoes = st.tabs(["Gráfico de Composição", "Editar / Excluir"])
+            st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
-                with tab_resumo:
-                    st.markdown("###### Distribuição do Pagamento")
-                    try:
-                        chart_data = pd.DataFrame({
-                            'Tipo': ['Entrada', 'Mensais', 'Semestrais', 'Entrega'],
-                            'Valor': [val_entrada_num, total_mensal, total_semestral, val_entrega_num]
-                        })
-                        chart_data = chart_data[chart_data['Valor'] > 0]
-
-                        color_scheme = [st.get_option('theme.primaryColor'), '#FFA500', '#FFC04D', '#808080']
-
-                        if not chart_data.empty:
-                            pie_chart = alt.Chart(chart_data).mark_arc(outerRadius=100, innerRadius=65, cornerRadius=4).encode(
-                                theta=alt.Theta("Valor:Q", stack=True),
-                                color=alt.Color("Tipo:N", 
-                                                scale=alt.Scale(domain=['Entrada', 'Mensais', 'Semestrais', 'Entrega'], 
-                                                                range=color_scheme),
-                                                legend=alt.Legend(orient='right')),
-                                tooltip=['Tipo', 'Valor', alt.Tooltip("Valor:Q", format=".1%", title="% do Total")]
-                            ).properties(
-                                height=250
-                            )
-                            st.altair_chart(pie_chart, use_container_width=True)
-                        else:
-                            st.info("Sem dados para gráfico.")
-
-                        st.markdown(f"**Pagamento na Entrega:** {format_currency(val_entrega_num)}")
-
-                    except Exception as e:
-                        st.error(f"Erro no gráfico: {e}")
-
-                with tab_acoes:
-                    col_act_1, col_act_2 = st.columns(2)
-
-                    with col_act_1:
-                        edit_key = f"edit_{index}_{row['Unidade']}"
-                        if st.button("Editar", key=edit_key, use_container_width=True):
-                            if sheet:
-                                try:
-                                    cell = sheet.find(row['Data/Hora'])
-                                    if cell:
-                                        edit_dialog(row.to_dict(), sheet, cell.row)
-                                    else:
-                                        st.error("Linha não encontrada.")
-                                except Exception as e:
-                                    st.error(f"Erro: {e}")
-                            else:
-                                st.error("Sem conexão.")
-
-                    with col_act_2:
-                        delete_key = f"delete_{index}_{row['Unidade']}"
-                        if st.button("Excluir", key=delete_key, type="primary", use_container_width=True):
-                            if sheet:
-                                try:
-                                    cell = sheet.find(row['Data/Hora'])
-                                    if cell:
-                                        sheet.delete_rows(cell.row)
-                                        st.toast(f"Unidade '{row['Unidade']}' excluída.")
-                                        st.cache_data.clear()
-                                        st.cache_resource.clear()
-                                        time.sleep(1)
-                                        st.rerun()
-                                    else:
-                                        st.error("Linha não encontrada.")
-                                except Exception as e:
-                                    st.error(f"Erro: {e}")
-                            else:
-                                st.error("Sem conexão.")
-
-            st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
+    else:
+        st.info("Nenhuma simulação salva.")
