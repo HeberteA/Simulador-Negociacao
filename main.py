@@ -24,14 +24,17 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* Estilo das Caixas (Containers) */
+/* Estilização do Container Nativo (border=True) para parecer o Card Lavie */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background-color: rgba(255, 255, 255, 0.02) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 16px !important;
     padding: 24px !important;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    margin-bottom: 20px; /* Espaço entre os containers */
+}
+/* Garante que o container ocupe espaço corretamente */
+div[data-testid="stVerticalBlockBorderWrapper"] > div {
+    gap: 1rem;
 }
 
 /* Inputs Glassmorphism */
@@ -54,7 +57,7 @@ label[data-testid="stLabel"] {
 
 /* Headers de Seção */
 .section-header {
-    display: flex; align-items: center; margin-bottom: 15px;
+    display: flex; align-items: center; margin-bottom: 20px;
 }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
@@ -93,7 +96,7 @@ def render_header(icon_name, title):
             <span class="section-title">{title}</span>
         </div>
     """, unsafe_allow_html=True)
-    
+
 def format_currency(value):
     if value is None:
         return "R$ 0,00"
@@ -102,7 +105,7 @@ def format_currency(value):
 def to_sheet_string(value):
     """Converte um float (ex: 5555.56) para uma string PT-BR (ex: "5555,56")"""
     return f"{value:.2f}".replace('.', ',')
-    
+
 @st.cache_resource(ttl=60)
 def get_worksheet():
     scopes = [
@@ -144,9 +147,9 @@ def carregar_dados_planilha():
             return pd.DataFrame()
 
         data = sheet.get_all_values() 
-        
+
         if not data or len(data) < 2: 
-            
+
             return pd.DataFrame()
 
         df = pd.DataFrame(data[1:], columns=data[0])
@@ -181,7 +184,7 @@ def set_default_values():
         "perc_semestral": 20.0,
         "perc_entrega": 20.0,
     }
-    
+
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
@@ -200,7 +203,7 @@ def reset_to_default_values():
         "perc_entrada", "perc_mensal", "perc_semestral", "perc_entrega",
         "total_percent", "summary_text", "data_to_save"
     ]
-    
+
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
@@ -248,7 +251,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             key="edit_num_semestral"
         )
 
-    with form_cols[2]:
+    with form_cols[1]:
         st.markdown("##### Definição do Fluxo de Pagamento (%)")
 
         perc_entrada = st.number_input(
@@ -375,18 +378,19 @@ with tab1:
 
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
-    
-    with st.container(border=True):
-        render_header("apartment", "Dados da Unidade")
-        c_dados = st.columns([1, 1.5])
-        unidade = c_dados[0].text_input("Unidade / Sala", key="main_unidade")
-        preco_total = c_dados[1].number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
 
     with st.container(border=True):
-        render_header("calendar_month", "Configuração de Prazos")
-        c_prazos = st.columns(2)
-        num_mensal = c_prazos[0].number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-        num_semestral = c_prazos[1].number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
+        col_dados, col_prazos = st.columns([1.2, 1])
+        
+        with col_dados:
+            render_header("apartment", "Dados da Unidade")
+            unidade = st.text_input("Unidade / Sala", key="main_unidade")
+            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+    with st.container(border=True):        
+        with col_prazos:
+            render_header("calendar_month", "Configuração de Prazos")
+            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+            num_semestral = st.number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -413,7 +417,7 @@ with tab1:
         total_percent = st.session_state.total_percent
         color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
         icon_st = "check_circle" if total_percent == 100 else "warning"
-        
+
         st.markdown(f"""
         <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
             <span style="font-size: 0.85rem; color: #666; margin-right: 10px;">Status do Fechamento:</span>
@@ -423,10 +427,10 @@ with tab1:
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+
         st.markdown('</div>', unsafe_allow_html=True)
 
-    
+
     val_entrada = (preco_total * perc_entrada) / 100
     val_total_mensal = (preco_total * perc_mensal) / 100
     val_total_semestral = (preco_total * perc_semestral) / 100
@@ -474,6 +478,7 @@ with tab1:
     st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+    
     if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
         
         if not unidade:
@@ -527,7 +532,8 @@ Data: {data_hora_atual}
                         st.error("Erro ao conectar com a planilha.")
                 except Exception as e:
                     st.error(f"Erro: {e}")
-                    
+
+
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
 
@@ -554,12 +560,12 @@ with tab2:
             except (ValueError, TypeError) as e:
                 st.error(f"Erro na linha {index}. Verifique a planilha.")
                 continue
-            
+
             fmt_preco = format_currency(preco_total_num)
             fmt_entrada = format_currency(val_entrada_num)
             fmt_mensal = format_currency(val_mensal_num)
             fmt_semestral = format_currency(val_semestral_num)
-            
+
             card_html = f"""
             <div class="lavie-card">
                 <div class="card-header">
@@ -592,11 +598,11 @@ with tab2:
                 </div>
             </div>
             """
-            
+
             st.markdown(card_html, unsafe_allow_html=True)
-            
+
             with st.expander("Ver Detalhes, Gráfico ou Ações"):
-                
+
                 tab_resumo, tab_acoes = st.tabs(["Gráfico de Composição", "Editar / Excluir"])
 
                 with tab_resumo:
@@ -624,15 +630,15 @@ with tab2:
                             st.altair_chart(pie_chart, use_container_width=True)
                         else:
                             st.info("Sem dados para gráfico.")
-                            
+
                         st.markdown(f"**Pagamento na Entrega:** {format_currency(val_entrega_num)}")
-                        
+
                     except Exception as e:
                         st.error(f"Erro no gráfico: {e}")
 
                 with tab_acoes:
                     col_act_1, col_act_2 = st.columns(2)
-                    
+
                     with col_act_1:
                         edit_key = f"edit_{index}_{row['Unidade']}"
                         if st.button("Editar", key=edit_key, use_container_width=True):
@@ -667,5 +673,5 @@ with tab2:
                                     st.error(f"Erro: {e}")
                             else:
                                 st.error("Sem conexão.")
-            
+
             st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
