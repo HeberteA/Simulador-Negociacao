@@ -224,7 +224,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             st.session_state.get('edit_perc_entrega', 0.0)
         )
 
-    form_cols = st.columns(2)
+    form_cols = st.columns(3)
     with form_cols[0]:
         st.markdown("##### Dados da Simulação")
         st.text_input("Unidade / Sala", value=row_data['Unidade'], disabled=True)
@@ -235,7 +235,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             value=float(row_data.get('Preco Total', 500000)), 
             key="edit_preco_total"
         )
-
+    with form_cols[1]:    
         st.markdown("##### Nº de Parcelas")
         num_mensal = st.number_input(
             "Nº de Parcelas Mensais", 
@@ -252,7 +252,7 @@ def edit_dialog(row_data, sheet, sheet_row_index):
             key="edit_num_semestral"
         )
 
-    with form_cols[1]:
+    with form_cols[2]:
         st.markdown("##### Definição do Fluxo de Pagamento (%)")
 
         perc_entrada = st.number_input(
