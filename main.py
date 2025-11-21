@@ -19,13 +19,23 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
+    background: radial-gradient(circle at 10% 20%, #101012 0%, #050505 90%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
 
-/* --- CORREÇÃO DO RESUMO CORTADO --- */
-/* Garante que a caixa de texto (textarea) tenha altura automática e não fixa */
+/* --- CORREÇÃO 1: GRADIENTE NOS CONTAINERS DOS INPUTS --- */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* O mesmo gradiente do Card de Resultado */
+    background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important;
+    margin-bottom: 20px;
+}
+
+/* Correção do Resumo (Text Area) */
 div[data-baseweb="textarea"] > div {
     height: auto !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
@@ -34,17 +44,7 @@ div[data-baseweb="textarea"] > div {
     border-radius: 8px !important;
 }
 
-/* Estilo das Caixas (Containers) */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 16px !important;
-    padding: 24px !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    margin-bottom: 20px;
-}
-
-/* Inputs Normais (Texto e Numero) - Altura Fixa 48px */
+/* Inputs Normais */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -52,7 +52,6 @@ div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-base
     border-radius: 8px !important;
     height: 48px;
 }
-
 div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     color: white !important;
     font-family: 'Inter', sans-serif;
@@ -63,7 +62,7 @@ label[data-testid="stLabel"] {
     margin-bottom: 6px;
 }
 
-/* Headers */
+/* Headers e Ícones */
 .section-header { display: flex; align-items: center; margin-bottom: 15px; }
 .section-icon {
     font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
@@ -76,7 +75,7 @@ label[data-testid="stLabel"] {
 .lavie-card {
     background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 30px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     margin-top: 10px;
@@ -88,7 +87,7 @@ label[data-testid="stLabel"] {
 
 .stat-item { display: flex; flex-direction: column; }
 .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
-.stat-value { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
+.stat-value { font-size: 1.5rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
 .stat-value.highlight { color: #E37026; }
 .stat-sub { font-size: 0.8rem; color: #555; }
 </style>
@@ -144,38 +143,30 @@ def get_worksheet():
         st.error(f"Erro ao autenticar ou abrir a planilha: {e}")
         return None
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=5) 
 def carregar_dados_planilha():
     try:
         sheet = get_worksheet()
-        if sheet is None:
-            st.error("Falha ao carregar dados: conexão com planilha indisponível.")
-            return pd.DataFrame()
+        if sheet is None: return pd.DataFrame()
 
-        data = sheet.get_all_values() 
-
-        if not data or len(data) < 2: 
-
-            return pd.DataFrame()
+        data = sheet.get_all_values()
+        if not data or len(data) < 2: return pd.DataFrame()
 
         df = pd.DataFrame(data[1:], columns=data[0])
-
         cols_para_converter = [
             'Preco Total', 'Valor Entrada', 'Valor Mensal', 'Valor Semestral', 'Valor Entrega',
             '% Entrada', '% Mensal', '% Semestral', '% Entrega',
             'Nº Mensal', 'Nº Semestral'
         ]
-
         for col in cols_para_converter:
             if col in df.columns:
                 df[col] = pd.to_numeric(
                     df[col].astype(str).str.replace('.', '', regex=False).str.replace(',', '.', regex=False),
                     errors='coerce'
                 ).fillna(0)
-
         return df
     except Exception as e:
-        st.error(f"Erro ao carregar dados da planilha: {e}")
+        st.error(f"Erro ao carregar: {e}")
         return pd.DataFrame()
 
 
@@ -524,17 +515,20 @@ Data: {data_hora_atual}
         st.text_area("Copie aqui:", value=st.session_state.summary_text, height=300, key="summary_display")
 
         if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
-            with st.spinner("Salvando..."):
+            with st.spinner("Conectando ao Google Sheets..."):
                 try:
                     sheet = get_worksheet()
                     if sheet and st.session_state.data_to_save:
                         nova_linha = st.session_state.data_to_save
                         nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
                         sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
-                        st.toast("Salvo com sucesso!", icon="✅")
+            
+                        st.toast("Simulação salva com sucesso!", icon="✅")
+                        carregar_dados_planilha.clear()
                         reset_to_default_values() 
                         time.sleep(1)
                         st.rerun()
+                        
                     else:
                         st.error("Erro ao conectar com a planilha.")
                 except Exception as e:
@@ -612,15 +606,16 @@ with tab2:
                             cell = sheet.find(row['Data/Hora'])
                             if cell: edit_dialog(row.to_dict(), sheet, cell.row)
 
-                with c_act4:
-                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary", use_container_width=True):
+                with c_act2:
+                     if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
                             if cell:
                                 sheet.delete_rows(cell.row)
-                                st.success("Excluído!")
+                                st.toast("Simulação excluída!", icon="🗑️")
+                                carregar_dados_planilha.clear() 
                                 time.sleep(1)
-                                st.rerun()
+                                st.rerun() 
 
             st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
