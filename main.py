@@ -18,56 +18,59 @@ APP_STYLE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0');
 
+/* Fundo Geral do App */
 [data-testid="stAppViewContainer"] {
     background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
 
-/* --- AQUI ESTÁ A CORREÇÃO DEFINITIVA DO VISUAL DOS CONTAINERS --- */
-/* Alvo: st.container(border=True) */
+/* --- CORREÇÃO DO GRADIENTE DOS CONTAINERS --- */
+/* Forçamos o gradiente via background-image e zeramos a cor de fundo sólida */
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    /* Gradiente sólido para garantir visibilidade */
-    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background-color: transparent !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    /* Borda fina e elegante */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    
-    /* Sombra e Arredondamento */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 16px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
-    
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
     padding: 24px !important;
     margin-bottom: 24px !important;
 }
 
-/* Remove o fundo padrão interno se houver */
+/* Remove qualquer fundo dos filhos diretos para o gradiente brilhar */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
     background-color: transparent !important;
 }
 
-/* --- RESTANTE DO CSS --- */
-
-/* Corrige altura do Resumo */
-div[data-baseweb="textarea"] > div {
-    height: auto !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-}
-
-/* Inputs */
-div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
+/* --- Inputs --- */
+div[data-baseweb="input"] > div, 
+div[data-baseweb="select"] > div, 
+div[data-baseweb="base-input"] {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
     border-radius: 8px !important;
     height: 48px;
 }
-div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
+
+/* Resumo (Textarea) - Altura automática */
+div[data-baseweb="textarea"] > div {
+    height: auto !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: white !important;
+}
+
+/* Cores dos Textos dos Inputs */
+div[data-testid="stNumberInput"] input, 
+div[data-testid="stTextInput"] input {
     color: white !important;
     font-family: 'Inter', sans-serif;
 }
+
+/* Labels */
 label[data-testid="stLabel"] {
     color: rgba(255, 255, 255, 0.6) !important;
     font-size: 0.85rem !important;
@@ -83,23 +86,24 @@ label[data-testid="stLabel"] {
 }
 .section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO (HTML Custom) */
+/* CARD DE RESULTADO (HTML Manual) */
 .lavie-card {
-    /* O mesmo gradiente dos containers acima para manter consistência */
-    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Mesmo gradiente para manter consistência */
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     margin-top: 10px;
 }
+
 .stats-grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%;
 }
 @media (max-width: 800px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 
 .stat-item { display: flex; flex-direction: column; }
-.stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+.stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
 .stat-value { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
 .stat-value.highlight { color: #E37026; }
 .stat-sub { font-size: 0.8rem; color: #555; }
