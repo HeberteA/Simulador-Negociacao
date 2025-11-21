@@ -129,8 +129,9 @@ def format_currency(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def to_sheet_string(value):
+    """Converte um float (ex: 5555.56) para uma string PT-BR (ex: "5555,56")"""
     return f"{value:.2f}".replace('.', ',')
-
+    
 @st.cache_resource(ttl=60)
 def get_worksheet():
     scopes = [
