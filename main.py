@@ -601,18 +601,18 @@ with tab2:
 </div>
 </div>
 """
-        with st.container(border=True):
             st.markdown(card_html, unsafe_allow_html=True)
+            st.space("small")
             
             with st.expander("Opções e Detalhes"):
-                c_act1, c_act2 = st.columns(2)
+                c_act1, c_act2, c_act3 = st.columns(3)
                 with c_act1:
                      if st.button(f"Editar {row['Unidade']}", key=f"edit_{index}"):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
                             if cell: edit_dialog(row.to_dict(), sheet, cell.row)
 
-                with c_act2:
+                with c_act3:
                      if st.button(f"Excluir {row['Unidade']}", key=f"del_{index}", type="primary"):
                         if sheet:
                             cell = sheet.find(row['Data/Hora'])
