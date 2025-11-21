@@ -24,13 +24,13 @@ APP_STYLE_CSS = """
     color: #ffffff;
 }
 
-/* Inputs Glassmorphism - Mais refinado */
+/* Inputs Glassmorphism */
 div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
-    background-color: rgba(255, 255, 255, 0.03) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
     border-radius: 8px !important;
-    height: 45px; /* Altura fixa para alinhar melhor */
+    height: 48px;
 }
 div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
     color: white !important;
@@ -38,29 +38,38 @@ div[data-testid="stNumberInput"] input, div[data-testid="stTextInput"] input {
 }
 label[data-testid="stLabel"] {
     color: rgba(255, 255, 255, 0.6) !important;
-    font-size: 0.8rem !important;
-    margin-bottom: 4px;
+    font-size: 0.85rem !important;
+    margin-bottom: 6px;
+}
+
+/* Container para agrupar inputs (Dá respiro visual) */
+.input-group {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 /* Headers de Seção */
 .section-header {
-    display: flex; align-items: center; margin-bottom: 12px; margin-top: 10px;
+    display: flex; align-items: center; margin-bottom: 15px;
 }
 .section-icon {
-    font-family: 'Material Symbols Rounded'; font-size: 20px; margin-right: 8px;
-    color: #E37026; background: rgba(227, 112, 38, 0.1); padding: 6px;
+    font-family: 'Material Symbols Rounded'; font-size: 22px; margin-right: 10px;
+    color: #E37026; background: rgba(227, 112, 38, 0.15); padding: 5px;
     border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
 }
-.section-title { font-size: 1rem; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+.section-title { font-size: 1.05rem; font-weight: 600; color: #fff; }
 
-/* CARD DE RESULTADO - O VISUAL QUE VOCÊ GOSTOU */
+/* CARD DE RESULTADO (LAVIE PREMIUM) */
 .lavie-card {
-    background: linear-gradient(160deg, rgba(30,30,36, 0.9) 0%, rgba(10,10,12, 0.95) 100%);
+    background: linear-gradient(160deg, rgba(30,30,36, 0.95) 0%, rgba(10,10,12, 0.98) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    margin-top: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    margin-top: 10px;
 }
 
 .stats-grid {
@@ -71,24 +80,17 @@ label[data-testid="stLabel"] {
 }
 @media (max-width: 800px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 
-.stat-item {
-    display: flex; flex-direction: column;
-}
-.stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-weight: 600; }
-.stat-value { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; }
-.stat-value.highlight { color: #E37026; text-shadow: 0 0 20px rgba(227, 112, 38, 0.2); }
-.stat-sub { font-size: 0.8rem; color: #666; margin-top: 4px; }
+.stat-item { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: 600; }
+.stat-value { font-size: 1.5rem; color: #fff; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 2px; }
+.stat-value.highlight { color: #E37026; }
+.stat-sub { font-size: 0.8rem; color: #555; }
 
-/* Ajuste da Barra de Status (Fluxo) para preencher espaço */
-.status-box {
-    margin-top: 16px;
-    padding: 12px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Barra de Status */
+.status-bar {
+    margin-top: 25px; padding: 10px 15px; border-radius: 8px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: space-between;
 }
 </style>
 """
@@ -382,61 +384,69 @@ with tab1:
     if "data_to_save" not in st.session_state:
         st.session_state.data_to_save = None
 
-    st.markdown(f"<h3 style='color: #E37026; margin: 0 0 20px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color: #E37026; margin: 0 0 5px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-bottom: 25px;'>Obra Selecionada: <strong style='color:#fff'>{obra_selecionada}</strong></p>", unsafe_allow_html=True)
     
-    
-    c_top_1, c_top_2 = st.columns(2)
-    
-    with c_top_1:
-        render_header("apartment", "Dados do Imóvel")
-        c_imovel = st.columns([1, 1.5])
-        unidade = c_imovel[0].text_input("Unidade / Sala", key="main_unidade")
-        preco_total = c_imovel[1].number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+    with st.container():
+        st.markdown('<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05);">', unsafe_allow_html=True)
+        
+        col_dados_1, col_dados_2 = st.columns([1, 1])
+        
+        with col_dados_1:
+            render_header("apartment", "Dados da Unidade")
+            unidade = st.text_input("Unidade / Sala", key="main_unidade")
+            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+            
+        with col_dados_2:
+            render_header("calendar_month", "Configuração de Prazos")
+            c_prazo_in = st.columns(2)
+            num_mensal = c_prazo_in[0].number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
+            num_semestral = c_prazo_in[1].number_input("Qtd. Semestrais", min_value=0, step=1, key="main_num_semestral")
 
-    with c_top_2:
-        render_header("calendar_month", "Prazos de Pagamento")
-        c_prazos = st.columns(2)
-        num_mensal = c_prazos[0].number_input("Qtd. Parcelas Mensais", min_value=0, step=1, key="main_num_mensal")
-        num_semestral = c_prazos[1].number_input("Qtd. Parcelas Semestrais", min_value=0, step=1, key="main_num_semestral")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
+-
+    with st.container():
+        st.markdown('<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.05);">', unsafe_allow_html=True)
+        
+        render_header("pie_chart", "Distribuição do Fluxo (%)")
 
-    
-    render_header("pie_chart", "Definição do Fluxo (%)")
+        if "total_percent" not in st.session_state:
+            st.session_state.total_percent = 0.0
 
-    if "total_percent" not in st.session_state:
-        st.session_state.total_percent = 0.0
+        def atualizar_percentual():
+            st.session_state.total_percent = (
+                st.session_state.get('perc_entrada', 0.0) +
+                st.session_state.get('perc_mensal', 0.0) +
+                st.session_state.get('perc_semestral', 0.0) +
+                st.session_state.get('perc_entrega', 0.0)
+            )
 
-    def atualizar_percentual():
-        st.session_state.total_percent = (
-            st.session_state.get('perc_entrada', 0.0) +
-            st.session_state.get('perc_mensal', 0.0) +
-            st.session_state.get('perc_semestral', 0.0) +
-            st.session_state.get('perc_entrega', 0.0)
-        )
+        c_flow = st.columns(4)
+        perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
+        perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
+        perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
+        perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
 
-    c_flow = st.columns(4)
-    
-    perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=atualizar_percentual)
-    perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=atualizar_percentual)
-    perc_semestral = c_flow[2].number_input("Semestrais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_semestral", on_change=atualizar_percentual)
-    perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=atualizar_percentual)
-
-    total = st.session_state.total_percent
-    color_st = "#09ab3b" if total == 100 else "#ff4b4b"
-    icon_st = "check_circle" if total == 100 else "error"
-    msg_st = "Fluxo Fechado em 100%" if total == 100 else f"Atenção: O total está em {total:.1f}% (Deve ser 100%)"
-
-    st.markdown(f"""
-    <div class="status-box" style="border-left: 3px solid {color_st};">
-        <div style="display:flex; align-items:center;">
-            <span class="material-symbols-rounded" style="color:{color_st}; margin-right:10px;">{icon_st}</span>
-            <span style="color:#ddd; font-weight:500;">{msg_st}</span>
+        total_percent = st.session_state.total_percent
+        color_st = "#09ab3b" if total_percent == 100 else "#ff4b4b"
+        icon_st = "check_circle" if total_percent == 100 else "warning"
+        msg_st = "Fluxo validado" if total_percent == 100 else "Ajuste para 100%"
+        
+        st.markdown(f"""
+        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-size: 0.8rem; color: #666;">Status do Fechamento</span>
+            <div style="display:flex; align-items:center; color: {color_st};">
+                <span class="material-symbols-rounded" style="font-size:18px; margin-right:6px;">{icon_st}</span>
+                <span style="font-weight:600;">{total_percent:.1f}%</span>
+            </div>
         </div>
-        <span style="color:{color_st}; font-weight:bold;">{total:.1f}%</span>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
+    
     st.markdown("---")
 
     val_entrada = round((preco_total * perc_entrada) / 100, 2)
@@ -456,67 +466,89 @@ with tab1:
     s_semestral = format_currency(val_por_semestral)
     s_total_semestral = format_currency(val_total_semestral)
     s_entrega = format_currency(val_entrega)
-
+    
     card_html = f"""
 <div class="lavie-card">
-<div class="stats-grid">
-<div class="stat-item">
-<span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
-<span class="stat-value highlight">{s_ent}</span>
-<span class="stat-sub">Pagamento no Ato</span>
-</div>
-<div class="stat-item">
-<span class="stat-label">Mensais ({num_mensal}x)</span>
-<span class="stat-value">{s_men}</span>
-<span class="stat-sub">Total: {s_tot_men}</span>
-</div>
-<div class="stat-item">
-<span class="stat-label">Semestrais ({num_semestral}x)</span>
-<span class="stat-value">{s_sem}</span>
-<span class="stat-sub">Total: {s_tot_sem}</span>
-</div>
-<div class="stat-item">
-<span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
-<span class="stat-value">{s_entg}</span>
-<span class="stat-sub">Chaves / Financiamento</span>
-</div>
-</div>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="stat-label">Entrada ({perc_entrada:.0f}%)</span>
+            <span class="stat-value highlight">{s_entrada}</span>
+            <span class="stat-sub">Ato</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Mensais ({num_mensal}x)</span>
+            <span class="stat-value">{s_mensal}</span>
+            <span class="stat-sub">Total: {s_total_mensal}</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Semestrais ({num_semestral}x)</span>
+            <span class="stat-value">{s_semestral}</span>
+            <span class="stat-sub">Total: {s_total_semestral}</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Entrega ({perc_entrega:.0f}%)</span>
+            <span class="stat-value">{s_entrega}</span>
+            <span class="stat-sub">Chaves</span>
+        </div>
+    </div>
 </div>
 """
     st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True):
-        if not unidade or preco_total <= 0 or round(total, 1) != 100.0:
-            st.toast("Verifique os dados: Unidade, Preço e Percentual (100%).")
+    if st.button("Gerar Resumo para Cópia", type="primary", use_container_width=True, key="btn_gerar_resumo"):
+        if not unidade:
+            st.error("Preencha a Unidade.")
+        elif preco_total <= 0:
+            st.error("Preencha o Preço Total.")
+        elif round(total_percent, 1) != 100.0:
+            st.error(f"Ajuste o percentual para 100% (Atual: {total_percent:.1f}%).")
         else:
-            dt_now = datetime.now().strftime("%d/%m/%Y")
-            summary = f"*Simulação {obra_selecionada} - Unid {unidade}*\n\nValor: {format_currency(preco_total)}\n\n🔹 Entrada ({perc_entrada:.0f}%): {s_ent}\n🔹 Mensais ({perc_mensal:.0f}%): {num_mensal}x {s_men}\n🔹 Semestrais ({perc_semestral:.0f}%): {num_semestral}x {s_sem}\n🔹 Entrega ({perc_entrega:.0f}%): {s_entg}\n\n📅 {dt_now}"
+            data_hora_atual = datetime.now().strftime("%Y-%m-%d")
+            summary = f"""
+*Resumo da Simulação - {obra_selecionada}*
+Unidade: {unidade}
+
+*Preço Total:* {format_currency(preco_total)}
+
+🔹 *Entrada ({perc_entrada:.1f}%):* {s_entrada}
+🔹 *Mensais ({num_mensal}x):* {s_mensal} (Total: {s_total_mensal})
+🔹 *Semestrais ({num_semestral}x):* {s_semestral} (Total: {s_total_semestral})
+🔹 *Entrega ({perc_entrega:.1f}%):* {s_entrega}
+
+Data: {data_hora_atual}
+"""
             st.session_state.summary_text = summary
-            
             st.session_state.data_to_save = [
                 obra_selecionada, unidade, to_sheet_string(preco_total),
                 to_sheet_string(perc_entrada), to_sheet_string(val_entrada),
                 to_sheet_string(perc_mensal), num_mensal, to_sheet_string(val_por_mensal),
                 to_sheet_string(perc_semestral), num_semestral, to_sheet_string(val_por_semestral),
                 to_sheet_string(perc_entrega), to_sheet_string(val_entrega),
-                datetime.now().strftime("%Y-%m-%d")
+                data_hora_atual
             ]
 
-    if st.session_state.summary_text:
-        st.text_area("Copiar:", value=st.session_state.summary_text, height=150)
-        if st.button("Salvar na Planilha", use_container_width=True):
+    if st.session_state.get("summary_text"):
+        st.markdown("##### Resumo Pronto")
+        st.text_area("Copie aqui:", value=st.session_state.summary_text, height=250, key="summary_display")
+
+        if st.button("Salvar na Planilha", use_container_width=True, key="btn_salvar_final"):
             with st.spinner("Salvando..."):
                 try:
                     sheet = get_worksheet()
-                    if sheet:
-                        row = st.session_state.data_to_save
-                        row[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        sheet.append_row(row, value_input_option='USER_ENTERED')
-                        st.toast("Simulação salva com sucesso!", icon="✅")
+                    if sheet and st.session_state.data_to_save:
+                        nova_linha = st.session_state.data_to_save
+                        nova_linha[-1] = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+                        sheet.append_row(nova_linha, value_input_option='USER_ENTERED')
+                        st.toast("Salvo com sucesso!", icon="✅")
+                        reset_to_default_values() 
                         time.sleep(1)
-                        reset_to_default_values()
                         st.rerun()
+                    else:
+                        st.error("Erro ao conectar com a planilha.")
                 except Exception as e:
                     st.error(f"Erro: {e}")
                     
