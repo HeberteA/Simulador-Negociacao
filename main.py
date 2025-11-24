@@ -258,7 +258,7 @@ with tab1:
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
         num_mensal = men.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
       
-        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral", "Mensal"], key="main_tipo_intercalada")
+        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada", width="stretch")
         num_intercalada = num.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -283,6 +283,7 @@ with tab1:
         color = "#09ab3b" if tot == 100 else "#ff4b4b"
         icon = "check_circle" if tot == 100 else "warning"
         st.markdown(f"""<div style="margin-top:15px; text-align:right; color:{color}; font-weight:bold;"><span class="material-symbols-rounded" style="vertical-align:middle;">{icon}</span> Fechamento: {tot:.1f}%</div>""", unsafe_allow_html=True)
+        st.markdown("")
 
     val_entrada_total = (preco_total * perc_entrada) / 100
     val_entrada_parcela = val_entrada_total / num_entrada if num_entrada > 0 else 0
