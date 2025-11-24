@@ -26,7 +26,7 @@ APP_STYLE_CSS = """
 
 /* --- CORREÇÃO DO GRADIENTE NOS INPUTS (Containers) --- */
 /* Alvo: st.container(border=True) */
-div[data-testid="stVerticalBlockBorderWrapper"] {
+.st-key-gradiente_container {
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
@@ -246,13 +246,13 @@ with tab1:
 
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 10px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     
-    with st.container(border=True):
+    with st.container(border=True,key="gradiente_container"):
         render_header("apartment", "Dados da Unidade")
         und, pre = st.columns([2, 4])
         unidade = und.text_input("Unidade / Sala", key="main_unidade")
         preco_total = pre.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
         
-    with st.container(border=True):
+    with st.container(border=True, key="gradiente_container"):
         render_header("calendar_month", "Configuração de Prazos")
         ent, tip, = st.columns(2)
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
@@ -262,7 +262,7 @@ with tab1:
         num_intercalada = tip.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
 
-    with st.container(border=True):
+    with st.container(border=True, key="gradiente_container"):
         render_header("pie_chart", "Distribuição do Fluxo (%)")
         if "total_percent" not in st.session_state: st.session_state.total_percent = 0.0
         
