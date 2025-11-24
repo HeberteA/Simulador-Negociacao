@@ -30,7 +30,7 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #2b2b2b 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 10px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -40,7 +40,7 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #2b2b2b 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 10px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -51,7 +51,7 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #2b2b2b 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 10px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -93,7 +93,7 @@ div[data-testid="stTextInput"] input {
 
 /* Labels (Títulos dos inputs) */
 label[data-testid="stLabel"] {
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
     font-size: 0.85rem !important;
     margin-bottom: 8px;
 }
