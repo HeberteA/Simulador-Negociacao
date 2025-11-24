@@ -247,17 +247,18 @@ with tab1:
     
     with st.container(border=True):
         render_header("apartment", "Dados da Unidade")
-        unidade = st.text_input("Unidade / Sala", key="main_unidade")
-        preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+        und, pre = st.columns([2, 4])
+        unidade = und.text_input("Unidade / Sala", key="main_unidade")
+        preco_total = pre.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
         
     with st.container(border=True):
         render_header("calendar_month", "Configuração de Prazos")
-            
-        num_entrada = st.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
-        num_mensal = st.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
+        ent, men, tip, num = (4)
+        num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
+        num_mensal = men.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
       
-        tipo_intercalada = st.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral", "Mensal"], key="main_tipo_intercalada")
-        num_intercalada = st.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
+        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral", "Mensal"], key="main_tipo_intercalada")
+        num_intercalada = num.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
