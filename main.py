@@ -50,7 +50,7 @@ div[data-baseweb="base-input"] {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
     border-radius: 8px !important;
-    height: 48px;
+    height: auto !important;
 }
 
 /* Resumo (Textarea) */
@@ -258,7 +258,7 @@ with tab1:
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
         num_mensal = men.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
       
-        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada", width="stretch")
+        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada", width= 8)
         num_intercalada = num.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -274,7 +274,7 @@ with tab1:
         perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=calc_pct)
         perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=calc_pct)
         
-        label_inter = f"{tipo_intercalada}s (%)" 
+        label_inter = f"{tipo_intercalada} (%)" 
         perc_intercalada = c_flow[2].number_input(label_inter, 0.0, 100.0, step=1.0, format="%.2f", key="perc_intercalada", on_change=calc_pct)
         
         perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=calc_pct)
@@ -316,7 +316,7 @@ with tab1:
         <div class="stats-grid">
             <div class="stat-item"><span class="stat-label">Entrada ({perc_entrada:.0f}%)</span><span class="stat-value highlight">{txt_entrada_main}</span><span class="stat-sub">{sub_entrada_main}</span></div>
             <div class="stat-item"><span class="stat-label">Mensais ({num_mensal}x)</span><span class="stat-value">{f_men}</span><span class="stat-sub">Total: {f_tot_men}</span></div>
-            <div class="stat-item"><span class="stat-label">{tipo_intercalada}s ({num_intercalada}x)</span><span class="stat-value">{f_inter}</span><span class="stat-sub">Total: {f_tot_inter}</span></div>
+            <div class="stat-item"><span class="stat-label">{tipo_intercalada} ({num_intercalada}x)</span><span class="stat-value">{f_inter}</span><span class="stat-sub">Total: {f_tot_inter}</span></div>
             <div class="stat-item"><span class="stat-label">Entrega ({perc_entrega:.0f}%)</span><span class="stat-value">{f_entg}</span><span class="stat-sub">Chaves</span></div>
         </div>
     </div>
