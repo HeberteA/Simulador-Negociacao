@@ -338,7 +338,7 @@ Unidade: {unidade} | Valor: {f_preco}
 
 *Entrada ({perc_entrada:.1f}%):* {str_ent_res}
 *Mensais ({num_mensal}x):* {f_men}
-*{tipo_intercalada}s ({num_intercalada}x):* {f_inter}
+*{tipo_intercalada} ({num_intercalada}x):* {f_inter}
 *Entrega ({perc_entrega:.1f}%):* {f_entg}
 
 Data: {dt}
