@@ -19,7 +19,7 @@ APP_STYLE_CSS = """
 
 /* Fundo Geral do App */
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 0%, #000000 90%);
+    background: radial-gradient(circle at 10% 20%, #101012 10%, #000000 90%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
@@ -28,7 +28,7 @@ APP_STYLE_CSS = """
 /* Alvo: st.container(border=True) */
 .st-key-gradiente_container {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 10%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
@@ -38,7 +38,7 @@ APP_STYLE_CSS = """
 }
 .st-key-gradiente_container1 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 10%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
@@ -49,7 +49,7 @@ APP_STYLE_CSS = """
 
 .st-key-gradiente_container2 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 10%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
@@ -110,7 +110,7 @@ label[data-testid="stLabel"] {
 /* CARD DE RESULTADO (HTML) */
 .lavie-card {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 10%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     padding: 30px;
