@@ -261,7 +261,6 @@ with tab1:
         tipo_intercalada = tip.selectbox("Tipo", ["Semestrais", "Trimestrais", "Anuais", "Bimestrais", "Quadrimestrais"], key="main_tipo_intercalada")
         num_intercalada = tip.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
-    st.markdown("<br>", unsafe_allow_html=True)
 
     with st.container(border=True):
         render_header("pie_chart", "Distribuição do Fluxo (%)")
