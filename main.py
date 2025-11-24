@@ -330,13 +330,13 @@ with tab1:
             str_ent_res = f"{f_ent_total}" if num_entrada == 1 else f"{num_entrada}x de {f_ent_parc} (Total: {f_ent_total})"
             
             summary = f"""
-Simulação - {obra_selecionada}
+*Simulação - {obra_selecionada}*
 Unidade: {unidade} | Valor: {f_preco}
 
-Entrada ({perc_entrada:.1f}%): {str_ent_res}
-Mensais ({num_mensal}x): {f_men}
-{tipo_intercalada}s ({num_intercalada}x): {f_inter}
-Entrega ({perc_entrega:.1f}%): {f_entg}
+*Entrada ({perc_entrada:.1f}%):* {str_ent_res}
+*Mensais ({num_mensal}x):* {f_men}
+*{tipo_intercalada}s ({num_intercalada}x):* {f_inter}
+*Entrega ({perc_entrega:.1f}%):* {f_entg}
 
 Data: {dt}
 """
@@ -369,32 +369,53 @@ Data: {dt}
 with tab2:
     st.markdown(f"### <span style='color: {st.get_option('theme.primaryColor')};'>Simulações Salvas</span>", unsafe_allow_html=True)
     df = carregar_dados_planilha()
+    
     if df is not None and not df.empty:
         df = df.sort_values(by="Data/Hora", ascending=False)
         sheet = get_worksheet()
+        
         for idx, row in df.iterrows():
             try:
                 pt = float(row.get('Preco Total', 0)); ve = float(row.get('Valor Entrada', 0))
                 vm = float(row.get('Valor Mensal', 0)); 
                 
+                t_int = row.get('Tipo Intercalada', 'Semestral') if 'Tipo Intercalada' in row else 'Semestral'
                 vi = float(row.get('Valor Intercalada', 0)) if 'Valor Intercalada' in row else float(row.get('Valor Semestral', 0))
-                tipo_i = row.get('Tipo Intercalada', 'Semestral') if 'Tipo Intercalada' in row else 'Semestral'
                 
                 nm = int(row.get('Nº Mensal', 0))
                 ni = int(row.get('Nº Intercalada', 0)) if 'Nº Intercalada' in row else int(row.get('Nº Semestral', 0))
+                ne = int(row.get('Nº Parc Entrada', 1)) if 'Nº Parc Entrada' in row else 1
                 
                 tm = vm * nm; ti = vi * ni
+                vent = float(row.get('Valor Entrega', 0))
                 
-                resumo_copia = f"""
-Simulação - {row.get('Obra','')}
-Unidade: {row.get('Unidade','')} | Valor: {format_currency(pt)} 
+                f_pt_s = format_currency(pt)
+                f_ve_s = format_currency(ve)
+                f_vm_s = format_currency(vm)
+                f_tm_s = format_currency(tm)
+                f_vi_s = format_currency(vi)
+                f_ti_s = format_currency(ti)
+                f_vent_s = format_currency(vent)
+                
+                data_salva = row.get('Data/Hora', '')
 
-Entrada ({perc_entrada:.1f}%): {format_currency(ve)}
-Mensais ({nm}}x): {format_currency(vm)
-{tipo_i}s ({ni}x): {format_currency(vi)}
-Entrega ({perc_entrega:.1f}%): {f_entg}
+                txt_ent_salva = f"{f_ve_s}"
+                if ne > 1:
+                    v_parc_aprox = ve / ne
+                    txt_ent_salva = f"{ne}x de {format_currency(v_parc_aprox)} (Total: {f_ve_s})"
 
-Data: {dt}
+                resumo_salvo = f"""
+*Resumo da Simulação - {row.get('Obra','')}*
+Unidade: {row.get('Unidade','')}
+
+*Preço Total:* {f_pt_s}
+
+*Entrada:* {txt_ent_salva}
+*Mensais ({nm}x):* {f_vm_s} (Total: {f_tm_s})
+*{t_int}s ({ni}x):* {f_vi_s} (Total: {f_ti_s})
+*Entrega:* {f_vent_s}
+
+Data: {data_salva}
 """
             except: continue
             
@@ -405,19 +426,19 @@ Data: {dt}
                     <span style="background:rgba(227,112,38,0.2); color:#E37026; padding:4px 10px; border-radius:12px; font-size:0.8rem;">Unidade {row['Unidade']}</span>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-item"><span class="stat-label">Preço</span><span class="stat-value highlight">{format_currency(pt)}</span></div>
+                    <div class="stat-item"><span class="stat-label">Preço</span><span class="stat-value highlight">{f_pt_s}</span></div>
                     <div class="stat-item"><span class="stat-label">Entrada</span><span class="stat-value">{format_currency(ve)}</span></div>
-                    <div class="stat-item"><span class="stat-label">Mensais ({nm}x)</span><span class="stat-value">{format_currency(vm)}</span><span class="stat-sub">Total: {format_currency(tm)}</span></div>
-                    <div class="stat-item"><span class="stat-label">{tipo_i}s ({ni}x)</span><span class="stat-value">{format_currency(vi)}</span><span class="stat-sub">Total: {format_currency(ti)}</span></div>
+                    <div class="stat-item"><span class="stat-label">Mensais ({nm}x)</span><span class="stat-value">{format_currency(vm)}</span><span class="stat-sub">Total: {f_tm_s}</span></div>
+                    <div class="stat-item"><span class="stat-label">{t_int}s ({ni}x)</span><span class="stat-value">{format_currency(vi)}</span><span class="stat-sub">Total: {f_ti_s}</span></div>
                 </div>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
             st.markdown("")
+            
             with st.expander("Opções e Copiar"):
-                st.caption("Copie o resumo abaixo:")
-                st.code(resumo_copia, language="markdown")
-                st.markdown("---")
+                st.markdown("###### Copiar Resumo")
+                st.code(resumo_salvo, language="markdown")
                 
                 c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
                 if c1.button(f"Editar", key=f"ed_{idx}"):
