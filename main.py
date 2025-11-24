@@ -444,7 +444,7 @@ Data: {data_salva}
                 st.code(resumo_salvo, language="markdown")
                 
                 c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
-                if c1.button(f"Editar", key=f"ed_{idx}", , use_container_width=True):
+                if c1.button(f"Editar", key=f"ed_{idx}", use_container_width=True):
                     if sheet: 
                         c = sheet.find(row['Data/Hora'])
                         if c: edit_dialog(row.to_dict(), sheet, c.row)
