@@ -19,7 +19,7 @@ APP_STYLE_CSS = """
 
 /* Fundo Geral do App */
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #101012 10%, #000000 90%);
+    background: radial-gradient(circle at 10% 20%, #FFFFFF 70%, #000000 100%);
     font-family: 'Inter', sans-serif;
     color: #ffffff;
 }
