@@ -258,7 +258,7 @@ with tab1:
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
         num_mensal = men.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
       
-        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada", width= 8)
+        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada")
         num_intercalada = num.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
