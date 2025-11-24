@@ -36,6 +36,28 @@ APP_STYLE_CSS = """
     padding: 24px !important;
     margin-bottom: 20px !important;
 }
+.st-key-gradiente_container1 {
+    background-color: transparent !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    padding: 24px !important;
+    margin-bottom: 20px !important;
+}
+
+.st-key-gradiente_container2 {
+    background-color: transparent !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    padding: 24px !important;
+    margin-bottom: 20px !important;
+}
+
 
 /* Garante que o fundo interno seja transparente */
 div[data-testid="stVerticalBlockBorderWrapper"] > div {
@@ -252,7 +274,7 @@ with tab1:
         unidade = und.text_input("Unidade / Sala", key="main_unidade")
         preco_total = pre.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
         
-    with st.container(border=True, key="gradiente_container"):
+    with st.container(border=True, key="gradiente_container1"):
         render_header("calendar_month", "Configuração de Prazos")
         ent, tip, = st.columns(2)
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
@@ -262,7 +284,7 @@ with tab1:
         num_intercalada = tip.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
 
-    with st.container(border=True, key="gradiente_container"):
+    with st.container(border=True, key="gradiente_container2"):
         render_header("pie_chart", "Distribuição do Fluxo (%)")
         if "total_percent" not in st.session_state: st.session_state.total_percent = 0.0
         
