@@ -28,9 +28,9 @@ APP_STYLE_CSS = """
 /* Alvo: st.container(border=True) */
 .st-key-gradiente_container {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #4d4d4d 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #242323 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -38,9 +38,9 @@ APP_STYLE_CSS = """
 }
 .st-key-gradiente_container1 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #4d4d4d 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #242323 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -49,9 +49,9 @@ APP_STYLE_CSS = """
 
 .st-key-gradiente_container2 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #4d4d4d 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #242323 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
@@ -110,9 +110,9 @@ label[data-testid="stLabel"] {
 /* CARD DE RESULTADO (HTML) */
 .lavie-card {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #4d4d4d 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #242323 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
     padding: 30px;
     border-radius: 16px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7) !important;
