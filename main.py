@@ -415,7 +415,7 @@ Unidade: {row.get('Unidade','')}
 
 *Entrada:* {txt_ent_salva}
 *Mensais ({nm}x):* {f_vm_s} (Total: {f_tm_s})
-*{t_int}s ({ni}x):* {f_vi_s} (Total: {f_ti_s})
+*{t_int} ({ni}x):* {f_vi_s} (Total: {f_ti_s})
 *Entrega:* {f_vent_s}
 
 Data: {data_salva}
@@ -432,7 +432,7 @@ Data: {data_salva}
                     <div class="stat-item"><span class="stat-label">Preço</span><span class="stat-value highlight">{f_pt_s}</span></div>
                     <div class="stat-item"><span class="stat-label">Entrada</span><span class="stat-value">{format_currency(ve)}</span></div>
                     <div class="stat-item"><span class="stat-label">Mensais ({nm}x)</span><span class="stat-value">{format_currency(vm)}</span><span class="stat-sub">Total: {f_tm_s}</span></div>
-                    <div class="stat-item"><span class="stat-label">{t_int}s ({ni}x)</span><span class="stat-value">{format_currency(vi)}</span><span class="stat-sub">Total: {f_ti_s}</span></div>
+                    <div class="stat-item"><span class="stat-label">{t_int} ({ni}x)</span><span class="stat-value">{format_currency(vi)}</span><span class="stat-sub">Total: {f_ti_s}</span></div>
                 </div>
             </div>
             """
