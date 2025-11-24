@@ -57,7 +57,7 @@ div[data-baseweb="base-input"] {
 div[data-baseweb="textarea"] > div {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
+    border-radius: 18px !important;
     color: white !important;
 }
 
@@ -245,22 +245,19 @@ with tab1:
 
     st.markdown(f"<h3 style='color: #E37026; margin: 0 0 10px 0;'>Nova Simulação</h3>", unsafe_allow_html=True)
     
-    col_dados, col_prazos = st.columns([1.2, 1])
-    with col_dados:
-        with st.container(border=True):
-            render_header("apartment", "Dados da Unidade")
-            unidade = st.text_input("Unidade / Sala", key="main_unidade")
-            preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
-    with col_prazos:
-        with st.container(border=True):
-            render_header("calendar_month", "Configuração de Prazos")
+    with st.container(border=True):
+        render_header("apartment", "Dados da Unidade")
+        unidade = st.text_input("Unidade / Sala", key="main_unidade")
+        preco_total = st.number_input("Preço Total (R$)", min_value=0.0, step=1000.0, key="main_preco_total", format="%.2f")
+        
+    with st.container(border=True):
+        render_header("calendar_month", "Configuração de Prazos")
             
-            num_entrada = st.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
-            num_mensal = st.number_input("Qtd. Mensais", min_value=0, step=1, key="main_num_mensal")
-            
-            c_tipo, c_qtd = st.columns(2)
-            tipo_intercalada = c_tipo.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral", "Mensal"], key="main_tipo_intercalada")
-            num_intercalada = c_qtd.number_input("Qtd.", min_value=0, step=1, key="main_num_intercalada")
+        num_entrada = st.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
+        num_mensal = st.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
+      
+        tipo_intercalada = st.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral", "Mensal"], key="main_tipo_intercalada")
+        num_intercalada = st.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -275,7 +272,7 @@ with tab1:
         perc_entrada = c_flow[0].number_input("Entrada (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrada", on_change=calc_pct)
         perc_mensal = c_flow[1].number_input("Mensais (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_mensal", on_change=calc_pct)
         
-        label_inter = f"{tipo_intercalada}s (%)" # Label dinâmico
+        label_inter = f"{tipo_intercalada}s (%)" 
         perc_intercalada = c_flow[2].number_input(label_inter, 0.0, 100.0, step=1.0, format="%.2f", key="perc_intercalada", on_change=calc_pct)
         
         perc_entrega = c_flow[3].number_input("Entrega (%)", 0.0, 100.0, step=1.0, format="%.2f", key="perc_entrega", on_change=calc_pct)
@@ -389,11 +386,15 @@ with tab2:
                 tm = vm * nm; ti = vi * ni
                 
                 resumo_copia = f"""
-*Simulação - {row.get('Obra','')}*
-Unidade: {row.get('Unidade','')} | Valor: {format_currency(pt)}
-🔹 Entrada: {format_currency(ve)}
-🔹 Mensais ({nm}x): {format_currency(vm)}
-🔹 {tipo_i}s ({ni}x): {format_currency(vi)}
+Simulação - {row.get('Obra','')}
+Unidade: {row.get('Unidade','')} | Valor: {format_currency(pt)} 
+
+Entrada ({perc_entrada:.1f}%): {format_currency(ve)}
+Mensais ({nm}}x): {format_currency(vm)
+{tipo_i}s ({ni}x): {format_currency(vi)}
+Entrega ({perc_entrega:.1f}%): {f_entg}
+
+Data: {dt}
 """
             except: continue
             
@@ -418,12 +419,12 @@ Unidade: {row.get('Unidade','')} | Valor: {format_currency(pt)}
                 st.code(resumo_copia, language="markdown")
                 st.markdown("---")
                 
-                c1, c2 = st.columns(2)
-                if c1.button(f"Editar Valores", key=f"ed_{idx}"):
+                c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
+                if c1.button(f"Editar", key=f"ed_{idx}"):
                     if sheet: 
                         c = sheet.find(row['Data/Hora'])
                         if c: edit_dialog(row.to_dict(), sheet, c.row)
-                if c2.button(f"Excluir", key=f"dl_{idx}", type="primary"):
+                if c4.button(f"Excluir", key=f"dl_{idx}", type="primary"):
                     if sheet:
                         c = sheet.find(row['Data/Hora'])
                         if c:
