@@ -113,6 +113,7 @@ label[data-testid="stLabel"] {
     background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding: 30px;
     border-radius: 16px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7) !important;
     margin-top: 10px;
