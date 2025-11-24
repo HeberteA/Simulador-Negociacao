@@ -30,9 +30,9 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
     margin-bottom: 20px !important;
 }
@@ -40,9 +40,9 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
     margin-bottom: 20px !important;
 }
@@ -51,9 +51,9 @@ APP_STYLE_CSS = """
     background-color: transparent !important;
     background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
     padding: 24px !important;
     margin-bottom: 20px !important;
 }
@@ -109,7 +109,7 @@ label[data-testid="stLabel"] {
 
 /* CARD DE RESULTADO (HTML) */
 .lavie-card {
-    background: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
+    background: linear-gradient(160deg, #FFFFFF 0%, #000000 100%) !important;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     padding: 30px;
