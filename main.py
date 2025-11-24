@@ -28,7 +28,7 @@ APP_STYLE_CSS = """
 /* Alvo: st.container(border=True) */
 .st-key-gradiente_container {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #3b3b3b 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
@@ -38,7 +38,7 @@ APP_STYLE_CSS = """
 }
 .st-key-gradiente_container1 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #3b3b3b 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
@@ -49,7 +49,7 @@ APP_STYLE_CSS = """
 
 .st-key-gradiente_container2 {
     background-color: transparent !important;
-    background-image: linear-gradient(160deg, #3b3b3b 0%, #0a0a0c 100%) !important;
+    background-image: linear-gradient(160deg, #1e1e24 0%, #0a0a0c 100%) !important;
     
     border: 1px solid rgba(255, 255, 255, 0.5) !important;
     border-radius: 16px !important;
