@@ -258,7 +258,7 @@ with tab1:
         num_entrada = ent.number_input("Nº Parc. Entrada", min_value=1, step=1, key="main_num_entrada")
         num_mensal = ent.number_input("Nº Parc. Mensais", min_value=0, step=1, key="main_num_mensal")
       
-        tipo_intercalada = tip.selectbox("Tipo", ["Semestral", "Trimestral", "Anual", "Bimestral", "Quadrimestral"], key="main_tipo_intercalada")
+        tipo_intercalada = tip.selectbox("Tipo", ["Semestrais", "Trimestrais", "Anuais", "Bimestrais", "Quadrimestrais"], key="main_tipo_intercalada")
         num_intercalada = tip.number_input("Nº Parc.", min_value=0, step=1, key="main_num_intercalada")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -382,7 +382,7 @@ with tab2:
                 pt = float(row.get('Preco Total', 0)); ve = float(row.get('Valor Entrada', 0))
                 vm = float(row.get('Valor Mensal', 0)); 
                 
-                t_int = row.get('Tipo Intercalada', 'Semestral') if 'Tipo Intercalada' in row else 'Semestral'
+                t_int = row.get('Tipo Intercalada', 'Semestrais') if 'Tipo Intercalada' in row else 'Semestrais'
                 vi = float(row.get('Valor Intercalada', 0)) if 'Valor Intercalada' in row else float(row.get('Valor Semestral', 0))
                 
                 nm = int(row.get('Nº Mensal', 0))
@@ -444,11 +444,11 @@ Data: {data_salva}
                 st.code(resumo_salvo, language="markdown")
                 
                 c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
-                if c1.button(f"Editar", key=f"ed_{idx}"):
+                if c1.button(f"Editar", key=f"ed_{idx}", , use_container_width=True):
                     if sheet: 
                         c = sheet.find(row['Data/Hora'])
                         if c: edit_dialog(row.to_dict(), sheet, c.row)
-                if c4.button(f"Excluir", key=f"dl_{idx}", type="primary"):
+                if c4.button(f"Excluir", key=f"dl_{idx}", type="primary", use_container_width=True):
                     if sheet:
                         c = sheet.find(row['Data/Hora'])
                         if c:
